@@ -42,9 +42,6 @@ virtual_machine=""
 dmidecode | grep -qi "VirtualBox" && virtual_machine="VirtualBox"
 dmidecode | grep -qi "VMware" && virtual_machine="VMware"
 
-# Choose partition scheme (with only DOS supported for now)
-partition_scheme="msdos"
-
 # Get list of disks
 disks=($(lsblk -b -o NAME,SIZE,TYPE | awk '$3 == "disk" {print $1, int($2 / (1024 ** 3))"GB"}'))
 
@@ -98,7 +95,6 @@ config_file="archgen.cfg"
 # Confirm values or exit
 clear
 echo """
-PARTITION_SCHEME: $partition_scheme
 SELECTED_DRIVE: $selected_drive
 ROOT_PASSWORD: [HIDDEN]
 USERNAME: $username
@@ -126,7 +122,6 @@ EOL
 
 # Append configuration details to the file
 cat >>"$config_file" <<EOL
-PARTITION_SCHEME="$partition_scheme"
 SELECTED_DRIVE="$selected_drive"
 ROOT_PASSWORD="$root_password"
 USERNAME="$username"

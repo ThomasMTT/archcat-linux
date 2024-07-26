@@ -40,18 +40,26 @@ ensure_internet() {
         until check_internet; do
                 ((retry_count++))
                 if [[ $retry_count -ge 3 ]]; then
-                        echo "You don't have internet access... exiting."
-                        exit 1
+                        echo "You don't have internet access... retrying in 3s."
+                        retry_count=0
                 fi
                 sleep 3
         done
 }
 
+is_uefi() {
+        [ -d /sys/firmware/efi ]
+}
+
 # Checks filesystem and mounts partitions if neccesary
 check_fs() {
+
+        # Check if the system is UEFI
+        is_uefi && efi=/efi
+
         local drive=$SELECTED_DRIVE
         local root_mount_point="/mnt"
-        local boot_mount_point="/mnt/boot"
+        local boot_mount_point="/mnt/boot$efi"
 
         # Check if the selected drive has multiple partitions
         if [ "$(lsblk -n -o NAME "/dev/$drive" | wc -l)" -gt 1 ]; then
@@ -172,28 +180,47 @@ setup_filesystem() {
                 # Mount filesystem
                 check_fs || exit 1
 
-                echolog "$GREEN" "Filesystem is already formated. And has now been succesfully mounted"
+        echolog "$GREEN" "Filesystem is already formated. And has now been succesfully mounted"
 
         else
-                # Setup partitions
-                parted /dev/"$SELECTED_DRIVE" --script mklabel "$PARTITION_SCHEME"
-                exit_code_check "$?" "Error while setting up the partition scheme. exiting..." || exit 1
 
-                parted /dev/"$SELECTED_DRIVE" --script mkpart primary fat32 1MB 513MB
-                exit_code_check "$?" "Error setting up the boot partition. exiting..." || exit 1
+                # Check if the system is UEFI
+                if is_uefi; then
 
+                        # Setup partitions for UEFI
+                        parted /dev/"$SELECTED_DRIVE" --script mklabel gpt
+                        exit_code_check "$?" "Error while setting up the partition scheme. exiting..." || exit 1
+
+                        parted /dev/"$SELECTED_DRIVE" --script mkpart primary fat32 1MB 513MB
+                        exit_code_check "$?" "Error setting up the EFI system partition. exiting..." || exit 1
+
+                        parted /dev/"$SELECTED_DRIVE" --script set 1 boot on
+                        exit_code_check "$?" "Error while marking the EFI system partition as bootable. exiting..." || exit 1
+
+                        parted /dev/"$SELECTED_DRIVE" --script set 1 esp on
+                        exit_code_check "$?" "Error while marking the EFI system partition as ESP. exiting..." || exit 1
+
+                else
+                        # Setup partitions for BIOS
+                        parted /dev/"$SELECTED_DRIVE" --script mklabel msdos
+                        exit_code_check "$?" "Error while setting up the partition scheme. exiting..." || exit 1
+
+                        parted /dev/"$SELECTED_DRIVE" --script mkpart primary fat32 1MB 513MB
+                        exit_code_check "$?" "Error setting up the boot partition. exiting..." || exit 1
+
+                        parted /dev/"$SELECTED_DRIVE" --script set 1 boot on
+                        exit_code_check "$?" "Error while marking the boot partition as bootable. exiting..." || exit 1
+                fi
+
+                # Common partition setup
                 parted /dev/"$SELECTED_DRIVE" --script mkpart primary linux-swap 513MB 5GB
                 exit_code_check "$?" "Error while setting up the swap partition. exiting..." || exit 1
 
                 parted /dev/"$SELECTED_DRIVE" --script mkpart primary ext4 5GB 100%
                 exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
 
-                parted /dev/"$SELECTED_DRIVE" --script set 1 boot on
-                exit_code_check "$?" "Error while marking the boot partition as bootable. exiting..." || exit 1
-
-                # Format partitions
                 mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE"1 
-                exit_code_check "$?" "Error while formating boot partition. exiting..." || exit 1
+                exit_code_check "$?" "Error while formating boot/EFI partition. exiting..." || exit 1
 
                 mkswap /dev/"$SELECTED_DRIVE"2 
                 exit_code_check "$?" "Error while formating swap partition. exiting..." || exit 1
@@ -212,8 +239,10 @@ install_root_packages() {
         update_checkpoint "Install_root_packages"
         notify "Installing root packages..."
 
+        is_uefi && efibootmgr=efibootmgr
+
         # Download and Install root packages
-        pacstrap /mnt linux linux-firmware networkmanager grub wpa_supplicant base base-devel
+        pacstrap /mnt linux linux-firmware networkmanager grub wpa_supplicant base base-devel "$efibootmgr"
 
         # Check if pacstrap was succesfull
         exit_code_check "$?" "Error while installing root packages. exiting..." || exit 1
@@ -254,8 +283,8 @@ prepare_chroot() {
                 local exitcode=$?
 
                 # Update directories
-                rsync -av --update ./ /mnt/Archcat
-                rsync -av --update /mnt/Archcat/ ./
+                rsync -av --update ./ /mnt/Archcat &>/dev/null
+                rsync -av --update /mnt/Archcat/ ./ &>/dev/null
 
                 # Reboot if neccesary
                 [ $exitcode -eq 100 ] && reboot
@@ -370,9 +399,16 @@ install_grub() {
         # Change the OS name from "Arch Linux" to "ArchCat"
         sed -i 's/GRUB_DISTRIBUTOR="Arch"/GRUB_DISTRIBUTOR="ArchCat"/' /etc/default/grub
 
-        # Install GRUB
-        grub-install /dev/sda 1>/dev/null
-        exit_code_check $? "Error while installing GRUB" || exit 1
+        
+        if is_uefi; then
+                # For UEFI systems
+                grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+                exit_code_check $? "Error while installing GRUB" || exit 1
+        else
+                # For BIOS systems
+                grub-install --target=i386-pc /dev/"$SELECTED_DRIVE"
+                exit_code_check $? "Error while installing GRUB" || exit 1
+        fi
 
         # Disable ipv6
         sed -i -e 's/^GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
@@ -841,16 +877,16 @@ main() {
         if [ -d /mnt/mnt/Archcat ]; then
 
                 # Update directories
-                rsync -av --update ./ /mnt/mnt/Archcat
-                rsync -av --update /mnt/mnt/Archcat/ ./
+                rsync -av --update ./ /mnt/mnt/Archcat &>/dev/null
+                rsync -av --update /mnt/mnt/Archcat/ ./ &>/dev/null
 
                 # Continue script from inside chroot
                 arch-chroot /mnt /mnt/Archcat/install.sh
                 local exitcode=$?
 
                 # Update directories
-                rsync -av --update ./ /mnt/mnt/Archcat
-                rsync -av --update /mnt/mnt/Archcat/ ./
+                rsync -av --update ./ /mnt/mnt/Archcat &>/dev/null
+                rsync -av --update /mnt/mnt/Archcat/ ./ &>/dev/null
 
                 # Reboot if required
                 [ $exitcode -eq 100 ] && reboot
