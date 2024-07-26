@@ -51,7 +51,7 @@ is_uefi() {
         [ -d /sys/firmware/efi ]
 }
 
-# Checks filesystem and mounts partitions if neccesary
+# Checks filesystem and mounts partitions if necessary
 check_fs() {
 
         # Check if the system is UEFI
@@ -120,7 +120,7 @@ gsettings_set() {
                 # Apply setting
                 gsettings set "$extension" "$setting" "$value"
 
-                # Check if it was successfull
+                # Check if it was successful
                 if [[ "$(gsettings get "$extension" "$setting")" == "$value" ]]; then
                         return 0
                 else
@@ -170,17 +170,18 @@ get_last_checkpoint() {
 ##CHECKPOINTS BEGIN
 
 setup_filesystem() {
+        echo
         notify "Setting up filesystem..."
 
         if lsblk "/dev/$SELECTED_DRIVE" | grep -q "/mnt/boot"; then
-                echolog "$GREEN" "Filesystem was already formated and mounted. Skipping..."
+                echolog "$GREEN" "Filesystem was already formatted and mounted. Skipping..."
 
         elif [ "$(lsblk "/dev/$SELECTED_DRIVE" | wc -l)" -gt 4 ]; then
 
                 # Mount filesystem
                 check_fs || exit 1
 
-        echolog "$GREEN" "Filesystem is already formated. And has now been succesfully mounted"
+        echolog "$GREEN" "Filesystem is already formatted. And has now been successfully mounted"
 
         else
 
@@ -220,18 +221,18 @@ setup_filesystem() {
                 exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
 
                 mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE"1 
-                exit_code_check "$?" "Error while formating boot/EFI partition. exiting..." || exit 1
+                exit_code_check "$?" "Error while formatting boot/EFI partition. exiting..." || exit 1
 
                 mkswap /dev/"$SELECTED_DRIVE"2 
-                exit_code_check "$?" "Error while formating swap partition. exiting..." || exit 1
+                exit_code_check "$?" "Error while formatting swap partition. exiting..." || exit 1
 
                 mkfs.ext4 /dev/"$SELECTED_DRIVE"3 
-                exit_code_check "$?" "Error while formating root partition. exiting..." || exit 1
+                exit_code_check "$?" "Error while formatting root partition. exiting..." || exit 1
 
                 # Mount filesystem
                 check_fs || exit 1
 
-                echolog "$GREEN" "Filesystem created and mounted succesfully"
+                echolog "$GREEN" "Filesystem created and mounted successfully"
         fi
 }
 
@@ -239,26 +240,32 @@ install_root_packages() {
         update_checkpoint "Install_root_packages"
         notify "Installing root packages..."
 
-        is_uefi && efibootmgr=efibootmgr
+        packages="linux linux-firmware networkmanager grub wpa_supplicant base base-devel"
+
+        # Add efi boot manager if uefi
+        if [ -n "$efibootmgr" ]; then
+                packages+=" $efibootmgr"
+        fi
 
         # Download and Install root packages
-        pacstrap /mnt linux linux-firmware networkmanager grub wpa_supplicant base base-devel "$efibootmgr"
+        # shellcheck disable=SC2086
+        pacstrap /mnt $packages
 
-        # Check if pacstrap was succesfull
+        # Check if pacstrap was successful
         exit_code_check "$?" "Error while installing root packages. exiting..." || exit 1
 
-        echolog "$GREEN" "Root packages installed succesfully"
+        echolog "$GREEN" "Root packages installed successfully"
 }
 
 generate_fstab() {
         update_checkpoint "Generate_fstab"
         notify "Generating fstab..."
 
-        # Generte fstab file
+        # Generate fstab file
         genfstab -U /mnt >/mnt/etc/fstab
         exit_code_check "$?" "Error while Generating fstab. exiting..." || exit 1
 
-        echolog "$GREEN" "Fstab generated succesfully"
+        echolog "$GREEN" "Fstab generated successfully"
 }
 
 prepare_chroot() {
@@ -272,9 +279,9 @@ prepare_chroot() {
                 mkdir "/mnt/mnt/Archcat"
                 exit_code_check "$?" "Error while creating /mnt/Archcat. exiting..." || exit 1
 
-                echolog "$GREEN" "Chroot setup succesfully. Entering chroot..."
+                echolog "$GREEN" "Chroot setup successfully. Entering chroot..."
 
-                # Copy all necesary files to chroot file system
+                # Copy all necessary files to chroot file system
                 cp -r ./* "/mnt/mnt/Archcat"
                 exit_code_check "$?" "Error while copying files to chroot /mnt/Archcat. exiting..." || exit 1
 
@@ -286,7 +293,7 @@ prepare_chroot() {
                 rsync -av --update ./ /mnt/Archcat &>/dev/null
                 rsync -av --update /mnt/Archcat/ ./ &>/dev/null
 
-                # Reboot if neccesary
+                # Reboot if necessary
                 [ $exitcode -eq 100 ] && reboot
 
                 exit $exitcode
@@ -323,9 +330,9 @@ create_accounts() {
 
         # Allow users in the wheel group to execute any command (no password required until installation is finished)
         sed -i -e 's/# %wheel ALL=(ALL:ALL)/%wheel ALL=(ALL:ALL)/g' /etc/sudoers
-        exit_code_check $? "Error while modifying /etc/sudores file to allow wheel group users sudo permissions" || exit 1
+        exit_code_check $? "Error while modifying /etc/sudoers file to allow wheel group users sudo permissions" || exit 1
 
-        echolog "$GREEN" "Accounts generated succesfully"
+        echolog "$GREEN" "Accounts generated successfully"
 }
 
 configure_hostname() {
@@ -339,7 +346,7 @@ configure_hostname() {
         [[ $(cat /etc/hostname) == "$HOSTNAME" ]]
         exit_code_check $? "Error while configuring hostname: $HOSTNAME" || exit 1
 
-        echolog "$GREEN" "Hostname: $HOSTNAME configured" sys
+        echolog "$GREEN" "Hostname: $HOSTNAME configured"
 }
 
 configure_keyboard() {
@@ -357,7 +364,7 @@ configure_keyboard() {
         # Make spanish default tty keyboard layout
         echo "KEYMAP=es" >/etc/vconsole.conf
 
-        echolog "$GREEN" "Keyboard configured succesfully"
+        echolog "$GREEN" "Keyboard configured successfully"
 }
 
 configure_timezone() {
@@ -368,7 +375,7 @@ configure_timezone() {
         ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
         exit_code_check $? "Error while setting time zone to Madrid" || exit 1
 
-        echolog "$GREEN" "Timezone configured succesfully"
+        echolog "$GREEN" "Timezone configured successfully"
 }
 
 configure_network() {
@@ -432,26 +439,26 @@ install_base_packages() {
         chsh -s /bin/zsh 
         chsh -s /bin/zsh "$USERNAME" 
 
-        echolog "$GREEN" "Base packages succesfully installed"
+        echolog "$GREEN" "Base packages successfully installed"
 }
 
 install_gnome() {
         update_checkpoint "Install_gnome"
-        notify "Installing desktop enviroment..."
+        notify "Installing desktop environment..."
 
         # Installing DE
         pacman --noconfirm --quiet -S xorg xorg-server gnome
-        exit_code_check $? "Error while installing desktop enviroment" || exit 1
+        exit_code_check $? "Error while installing desktop environment" || exit 1
 
         # Enabling gnome
-        systemctl enable gdm.service
-        exit_code_check $? "Error while enabling desktop enviroment" || exit 1
+        systemctl enable gdm
+        exit_code_check $? "Error while enabling desktop environment" || exit 1
 
         # Install gnome-extensions-cli (gext) to install extensions
         python -m pip install --upgrade gnome-extensions-cli --break-system-packages
-        exit_code_check "$?" "Error while installing gnome-extension-cli (Extension manager)" || exit 1
+        exit_code_check "$?" "Error while installing gnome-extensions-cli (Extension manager)" || exit 1
 
-        echolog "$GREEN" "Desktop enviroment succesfully installed"
+        echolog "$GREEN" "Desktop environment successfully installed"
 }
 
 install_vm_ext() {
@@ -468,8 +475,8 @@ install_vm_ext() {
                         exit_code_check $? "Error while installing virtualbox guest additions" || exit 1
 
                         # Enable virtualbox guest additions
-                        systemctl enable vboxservice.service
-                        exit_code_check $? "Error while enabling virtualbox.service" || exit 1
+                        systemctl enable vboxservice
+                        exit_code_check $? "Error while enabling virtualbox" || exit 1
 
                         # Enable seamless mode (screen adapts to window size)
                         VBoxClient --seamless
@@ -483,7 +490,7 @@ install_vm_ext() {
                         VBoxClient --clipboard
                         exit_code_check $? "Error while enabling virtualbox shared clipboard" || exit 1
 
-                        echolog "$GREEN" "Virtualbox guest additions succesfully installed"
+                        echolog "$GREEN" "Virtualbox guest additions successfully installed"
                 }
 
                 vmware_ext_install() {
@@ -496,7 +503,7 @@ install_vm_ext() {
                         systemctl enable vmtoolsd.service
                         exit_code_check $? "Error while enabling vmtoolsd.service" || exit 1
 
-                        echolog "$GREEN" "VMware tools succesfully installed"
+                        echolog "$GREEN" "VMware tools successfully installed"
                 }
 
                 case $VIRTUAL_MACHINE in
@@ -509,7 +516,7 @@ install_vm_ext() {
 
 install_aur() {
         update_checkpoint "Install_aur"
-        notify "Downloadning and Installing AUR..."
+        notify "Downloading and Installing AUR..."
 
         # Remove if it was already downloaded
         rm -rf "/home/$USERNAME/paru-bin" 2>/dev/null
@@ -534,7 +541,7 @@ install_aur() {
         paru --help &>/dev/null
         exit_code_check $? "Error while installing AUR (paru-bin)" || exit 1
 
-        echolog "$GREEN" "AUR repository succesfully installed"
+        echolog "$GREEN" "AUR repository successfully installed"
 }
 
 remove_bloatware() {
@@ -679,7 +686,7 @@ copy_config_files() {
         chown "$USERNAME" -R /home/"$USERNAME" 
         chgrp "$USERNAME" -R /home/"$USERNAME" 
 
-        echolog "$GREEN" "Config files copied succesfully"
+        echolog "$GREEN" "Config files copied successfully"
 }
 
 configure_gnome_keyboard() {
@@ -719,7 +726,7 @@ qol_tweaks() {
         # Set max volume to 150
         gsettings_set org.gnome.desktop.sound allow-volume-above-100-percent true || exit 1
 
-        # When in text editor higlight current line
+        # When in text editor highlight current line
         gsettings_set org.gnome.TextEditor highlight-current-line true || exit 1
 
         # Show battery percentage
@@ -742,7 +749,7 @@ qol_tweaks() {
 
 configure_default_apps() {
         update_checkpoint "Configure_default_apps"
-        notify "Configuring defaut apps..."
+        notify "Configuring default apps..."
 
         # Set text editor as default compared to nvim
         xdg-mime default org.gnome.TextEditor.desktop text/plain
@@ -767,7 +774,7 @@ install_gnome_extensions() {
         sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
         exit_code_check "$?" "Error while applying glib schemas, this is required to configure gnome extensions" || exit 1
 
-        echolog "$GREEN" "Gnome Extensions installed succesfully"
+        echolog "$GREEN" "Gnome Extensions installed successfully"
 }
 
 configure_gnome_extensions() {
