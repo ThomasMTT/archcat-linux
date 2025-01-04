@@ -247,6 +247,9 @@ install_root_packages() {
                 packages+=" $efibootmgr"
         fi
 
+        # Make sure that the packages downloaded are from the most updated keyring
+        pacman -Sy --noconfirm archlinux-keyring
+
         # Download and Install root packages
         # shellcheck disable=SC2086
         pacstrap /mnt $packages
