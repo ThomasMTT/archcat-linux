@@ -33,6 +33,12 @@ if [[ $? -ne 0 ]]; then
         exit 1
 fi
 
+# Check if file is a script (to avoid downloading the html as archcat)
+if [[ $(head -n1 /usr/local/bin/archcat) != "#!/bin/bash" ]]; then
+        echo -e " [$RED*$RESET] Error: File must be a bash script" 
+        exit 1
+fi
+
 # Move the downloaded file to /usr/local/bin
 echo -e " [$YELLOW*$RESET] Moving file to $DESTINATION..."
 mv "$TMP_FILE" "$DESTINATION"
