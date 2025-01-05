@@ -89,14 +89,14 @@ To use "archcat" simply run the command from a terminal after completing the ini
    - After the process is complete, you might need to reboot your system for some changes to take effect.
 
 #### Additional Notes
-- **Updates:** [archcat-Cli](https://github.com/ThomasMTT/archcat-cli) will update itself on executing `archcat` if a newer version is available 
+- **Updates:** [Archcat-Cli](https://github.com/ThomasMTT/Archcat-cli) will update itself on executing `archcat` if a newer version is available 
 
 ## Additional Resources
 For more information and additional support, you can visit the following resources:
 
 **Archcat Repositories**
 - **Archcat Linux GitHub Repository**: [Archcat-Linux GitHub Repository](https://github.com/ThomasMTT/archcat-linux)
-- **Archcat CLI GitHub Repository**: [Archcat-Cli GitHub Repository](https://github.com/ThomasMTT/archcat-cli)
+- **Archcat CLI GitHub Repository**: [Archcat-Cli GitHub Repository](https://github.com/ThomasMTT/Archcat-cli)
 
 **Arch Linux Troubleshooting**
 - **Arch Linux Installation Guide**: [Arch Linux Installation Guide](https://wiki.archlinux.org/title/Installation_guide)
