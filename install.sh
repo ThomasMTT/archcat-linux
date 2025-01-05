@@ -765,8 +765,8 @@ install_gnome_extensions() {
         notify "Installing gnome shell extensions..."
 
         # Install extensions
-        gext -F install runcat@kolesnikov.se dash-to-panel@jderose9.github.com arcmenu@arcmenu.com \
-        caffeine@patapon.info clipboard-indicator@tudmotu.com arch-update@RaphaelRochet IP-Finder@linxgem33.com
+        gext -F install dash-to-panel@jderose9.github.com arcmenu@arcmenu.com \
+        clipboard-indicator@tudmotu.com arch-update@RaphaelRochet IP-Finder@linxgem33.com
         exit_code_check "$?" "Error while installing extensions" || exit 1
 
         # Copy configuration schemas
