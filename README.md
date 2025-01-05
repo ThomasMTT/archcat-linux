@@ -7,7 +7,7 @@ Welcome to Archcat, a lightweight and customizable Linux distribution based on A
 3. [Requirements](#requirements)
 4. [Checkpoint System](#checkpoint-system)
 5. [Installation Instructions](#installation-instructions)
-6. [archcat CLI](#archcat-cli)
+6. [Archcat CLI](#Archcat-cli)
 7. [Additional Resources](#additional-resources)
 
 ## Project Overview
@@ -72,7 +72,7 @@ If the script is interrupted or an error occurs, the checkpoint system allows yo
    - Follow the on-screen prompts to complete the setup.
 
 ## archcat CLI
-The [archcat command](https://github.com/ThomasMTT/archcat-cli) allows you to install predefined modules, representing specific groups of software packages, system configurations, or additional repositories.<br>
+The [Archcat command](https://github.com/ThomasMTT/Archcat-cli) allows you to install predefined modules, representing specific groups of software packages, system configurations, or additional repositories.<br>
 To use "archcat" simply run the command from a terminal after completing the initial Archcat installation.
 
 ### Using archcat
