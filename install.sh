@@ -912,7 +912,7 @@ main() {
         source ./archgen.cfg
 
         # Check filesystem if interacting from iso, mount if necessary
-        if [ -d /run/archiso ]; then
+        if [[ $(cat /etc/hostname) == "archiso" ]]; then
                 check_fs
         fi
 
