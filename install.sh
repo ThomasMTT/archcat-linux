@@ -276,7 +276,7 @@ prepare_chroot() {
         notify "Preparing chroot..."
 
         # Check that process is running outsite of chroot
-        if [ -d /run/archiso ]; then
+        if [[ $(cat /etc/hostname) == "archiso" ]]; then
 
                 # Create chroot install directory
                 mkdir "/mnt/mnt/Archcat"
