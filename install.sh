@@ -420,8 +420,8 @@ install_grub() {
                 exit_code_check $? "Error while installing GRUB" || exit 1
         fi
 
-        # Disable ipv6
-        sed -i -e 's/^GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
+        # Disable ipv6 (causes trouble with openvpn)
+        #sed -i -e 's/^GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
 
         # Generate GRUB configuration
         grub-mkconfig -o /boot/grub/grub.cfg 1>/dev/null
