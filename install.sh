@@ -388,9 +388,10 @@ configure_network() {
         # Add local hosts
         echo -e "127.0.0.1   localhost\n::1  localhost" >/etc/hosts
 
-        # Set Quad9 DNS
-        echo -e "nameserver 9.9.9.9\nnameserver 149.112.112.112" >/etc/resolv.conf
-
+        # Set Quad9 DNS (if inside a VM, nat will make sure your host dns will be used)
+        if [[ $VIRTUAL_MACHINE_EXT == "true" ]]; then
+                echo -e "nameserver 9.9.9.9\nnameserver 149.112.112.112" >/etc/resolv.conf
+        fi
         # Enable network manager
         systemctl enable NetworkManager.service
         exit_code_check $? "Error while enabling NetworkManager.service" || exit 1
