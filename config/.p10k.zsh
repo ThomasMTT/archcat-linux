@@ -19,7 +19,8 @@
     command_execution_time  
     background_jobs         
     context                 
-    ip                      
+    ip
+    public_ip
   )
   typeset -g POWERLEVEL9K_MODE=nerdfont-complete
   typeset -g POWERLEVEL9K_ICON_PADDING=none
