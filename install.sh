@@ -500,7 +500,7 @@ install_vm_ext() {
                 vmware_ext_install() {
                         # Install vmware tools
                         notify "Installing vmware tools..."
-                        pacman --noconfirm --quiet -S open-vm-tools
+                        pacman --noconfirm --quiet -S open-vm-tools gtkmm3
                         exit_code_check $? "Error while installing vmware tools" || exit 1
 
                         # Enable vmware tools
