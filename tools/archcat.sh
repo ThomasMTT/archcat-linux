@@ -34,7 +34,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Check if file is a script (to avoid downloading the html as archcat)
-if [[ $(head -n1 /usr/local/bin/archcat) != "#!/bin/bash" ]]; then
+if [[ $(head -n1 $TMP_FILE) != "#!/bin/bash" ]]; then
         echo -e " [$RED*$RESET] Error: File must be a bash script" 
         exit 1
 fi
