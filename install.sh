@@ -786,6 +786,11 @@ configure_gnome_extensions() {
         update_checkpoint "Configure_gnome_extensions"
         notify "Configuring gnome shell extensions..."
 
+        # Runcat
+        local extension="org.gnome.shell.extensions.runcat"
+        gsettings_set $extension displaying-items "'character-and-percentage'" || exit 1
+        gsettings_set $extension idle-threshold 15 || exit 1
+
         # Dash-to-Panel
         extension="org.gnome.shell.extensions.dash-to-panel"
         gsettings_set $extension panel-sizes "'{\"0\":36}'" || exit 1
