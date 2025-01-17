@@ -276,7 +276,7 @@ prepare_chroot() {
         notify "Preparing chroot..."
 
         # Check that process is running outsite of chroot
-        if [[ $(cat /etc/hostname) == "archiso" ]]; then
+        if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" ]]; then
 
                 # Create chroot install directory
                 mkdir "/mnt/mnt/Archcat"
@@ -346,7 +346,7 @@ configure_hostname() {
         echo "$HOSTNAME" >/etc/hostname
 
         # Check that Hostname was set correctly
-        [[ $(cat /etc/hostname) == "$HOSTNAME" ]]
+        [[ $(cat /etc/hostname 2>/dev/null) == "$HOSTNAME" ]]
         exit_code_check $? "Error while configuring hostname: $HOSTNAME" || exit 1
 
         echolog "$GREEN" "Hostname: $HOSTNAME configured"
@@ -907,7 +907,7 @@ main() {
         source ./archgen.cfg
 
         # Check filesystem if interacting from iso, mount if necessary
-        if [[ $(cat /etc/hostname) == "archiso" ]]; then
+        if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" ]]; then
                 check_fs
         fi
 
