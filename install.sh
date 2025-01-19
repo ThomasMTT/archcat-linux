@@ -920,13 +920,13 @@ main() {
         # so we add the p to the partitions where needed
         [[ $(echo $SELECTED_DRIVE | cut -c 1-4) == "nvme" ]] && p=p 
 
-        # Check filesystem if interacting from iso, mount if necessary
-        if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" ]]; then
-                check_fs
-        fi
-
         # Get last checkpoint to continue from (if any)
         last_checkpoint=$(get_last_checkpoint)
+
+        # Check filesystem if interacting from iso, mount if necessary also check if at first phase
+        if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" && last_checkpoint != "Setup_filesystem" ]]; then
+                check_fs
+        fi
 
         # Determine the starting index based on last checkpoint
         last_checkpoint_index=-1
