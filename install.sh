@@ -179,10 +179,12 @@ setup_filesystem() {
         echo
         notify "Setting up filesystem..."
 
+        part_count=$(lsblk "/dev/$SELECTED_DRIVE" | wc -l)
+
         if lsblk "/dev/$SELECTED_DRIVE" | grep -q "/mnt/boot"; then
                 echolog "$GREEN" "Filesystem was already formatted and mounted. Skipping..."
 
-        elif [ "$(lsblk "/dev/$SELECTED_DRIVE" | wc -l)" -gt 4 ]; then
+        elif [[ $part_count -gt 4 && get_last_checkpoint != "Setup_filesystem" ]]; then
 
                 # Mount filesystem
                 check_fs || exit 1
@@ -190,6 +192,9 @@ setup_filesystem() {
         echolog "$GREEN" "Filesystem is already formatted. And has now been successfully mounted"
 
         else
+                for i in $(seq 1 $part_count); do
+                    parted /dev/"$SELECTED_DRIVE" rm $i
+                done
 
                 # Check if the system is UEFI
                 if is_uefi; then
