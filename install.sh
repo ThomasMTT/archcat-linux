@@ -51,12 +51,6 @@ is_uefi() {
         [ -d /sys/firmware/efi ]
 }
 
-# if the drive is nvme then it will use this format nvmen(number)p(partition) 
-# so we add the p to the partitions where needed
-if [[ $(echo $SELECTED_DRIVE | cut -c 1-4) == "nvme" ]]; then
-        p=p 
-fi
-
 # Checks filesystem and mounts partitions if necessary
 check_fs() {
 
@@ -920,6 +914,10 @@ main() {
 
         # Import installation config
         source ./archgen.cfg
+
+        # if the drive is nvme then it will use this format nvmen(number)p(partition) 
+        # so we add the p to the partitions where needed
+        [[ $(echo $SELECTED_DRIVE | cut -c 1-4) == "nvme" ]] && p=p 
 
         # Check filesystem if interacting from iso, mount if necessary
         if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" ]]; then
