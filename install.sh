@@ -243,9 +243,7 @@ install_root_packages() {
         packages="linux linux-firmware networkmanager grub wpa_supplicant base base-devel"
 
         # Add efi boot manager if uefi
-        if [ -n "$efibootmgr" ]; then
-                packages+=" $efibootmgr"
-        fi
+        is_uefi && packages+=" efibootmgr"
 
         # Make sure that the packages downloaded are from the most updated keyring
         pacman -Sy --noconfirm archlinux-keyring
