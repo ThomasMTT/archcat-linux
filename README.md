@@ -70,6 +70,7 @@ If the script is interrupted or an error occurs, the checkpoint system allows yo
    - Make all scripts executable: `chmod -R +x ./*`.
    - Run `./install.sh` to start the installation process.
    - Follow the on-screen prompts to complete the setup.
+   - WARNING: your selected disk and all its partitions will be wiped
 
 ## archcat CLI
 The [Archcat command](https://github.com/ThomasMTT/Archcat-cli) allows you to install predefined modules, representing specific groups of software packages, system configurations, or additional repositories.<br>
