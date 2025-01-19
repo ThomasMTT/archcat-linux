@@ -187,7 +187,8 @@ setup_filesystem() {
 
         else
                 for i in $(seq 1 $part_count); do
-                    parted /dev/"$SELECTED_DRIVE" rm $i
+                        wipefs -a /dev/${$SELECTED_DRIVE}${p}${i}
+                        parted /dev/"$SELECTED_DRIVE" rm $i
                 done
 
                 # Check if the system is UEFI
@@ -915,7 +916,7 @@ main() {
         # Import installation config
         source ./archgen.cfg
 
-        # if the drive is nvme then it will use this format nvmen(number)p(partition) 
+        # if the drive is nvme then it will use this format nvme0n(number)p(partition) 
         # so we add the p to the partitions where needed
         [[ $(echo $SELECTED_DRIVE | cut -c 1-4) == "nvme" ]] && p=p 
 
