@@ -619,6 +619,9 @@ install_nerd_fonts() {
         update_checkpoint "Install_nerd_fonts"
         notify "Installing Nerd fonts..."
 
+        # Delete any previous files in case download fails
+        rm Hack.zip* 2>/dev/null
+
         # Download Hack nerd fonts
         wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Hack.zip
         exit_code_check $? "Error while downloading Nerd Hack fonts" || exit 1
