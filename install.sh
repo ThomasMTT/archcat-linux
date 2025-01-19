@@ -51,6 +51,12 @@ is_uefi() {
         [ -d /sys/firmware/efi ]
 }
 
+# if the drive is nvme then it will use this format nvmen(number)p(partition) 
+# so we add the p to the partitions where needed
+if [[ $(echo $SELECTED_DRIVE | cut -c 1-4) == "nvme" ]]; then
+        p=p 
+fi
+
 # Checks filesystem and mounts partitions if necessary
 check_fs() {
 
@@ -68,8 +74,8 @@ check_fs() {
                 if ! mountpoint -q "$root_mount_point"; then
 
                         # Mount root
-                        mount /dev/"$drive"3 "$root_mount_point" || {
-                                notify "Failed to mount /dev/${drive}3 on $root_mount_point."
+                        mount /dev/"$drive"${p}3 "$root_mount_point" || {
+                                notify "Failed to mount /dev/${drive}${p}3 on $root_mount_point."
                                 exit 1
                         }
                 fi
@@ -81,18 +87,18 @@ check_fs() {
                         mkdir -p "$boot_mount_point"
 
                         # Mount boot
-                        mount /dev/"$drive"1 "$boot_mount_point" || {
-                                notify "Failed to mount /dev/${drive}1 on $boot_mount_point."
+                        mount /dev/"$drive"${p}1 "$boot_mount_point" || {
+                                notify "Failed to mount /dev/${drive}${p}1 on $boot_mount_point."
                                 exit 1
                         }
                 fi
 
                 # Check if swap is enabled
-                if ! grep -q "/dev/${drive}2" /proc/swaps; then
+                if ! grep -q "/dev/${drive}${p}2" /proc/swaps; then
 
                         # Enable swap
-                        swapon /dev/"$drive"2 || {
-                                notify "Failed to enable swap on /dev/${drive}2."
+                        swapon /dev/"$drive"${p}2 || {
+                                notify "Failed to enable swap on /dev/${drive}${p}2."
                                 exit 1
                         }
                 fi
@@ -220,13 +226,13 @@ setup_filesystem() {
                 parted /dev/"$SELECTED_DRIVE" --script mkpart primary ext4 5GB 100%
                 exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
 
-                mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE"1 
+                mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE"${p}1 
                 exit_code_check "$?" "Error while formatting boot/EFI partition. exiting..." || exit 1
 
-                mkswap /dev/"$SELECTED_DRIVE"2 
+                mkswap /dev/"$SELECTED_DRIVE"${p}2 
                 exit_code_check "$?" "Error while formatting swap partition. exiting..." || exit 1
 
-                mkfs.ext4 /dev/"$SELECTED_DRIVE"3 
+                mkfs.ext4 /dev/"$SELECTED_DRIVE"${p}3 
                 exit_code_check "$?" "Error while formatting root partition. exiting..." || exit 1
 
                 # Mount filesystem
