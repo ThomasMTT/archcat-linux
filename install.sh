@@ -583,6 +583,10 @@ install_oh_my_zsh() {
         # Alias bat as cat and lsd as ls if they arent added already
         grep -q 'alias ls' /home/"$USERNAME"/.zshrc || echo -e "alias ls='lsd'\nalias cat='bat'" >>/home/"$USERNAME"/.zshrc
 
+        # Add zsh config to root
+        ln -s /home/$USERNAME/.zshrc /root
+        ln -s /home/$USERNAME/.oh-my-zsh/ /root
+        
         echolog "$GREEN" "Oh My Zsh installed successfully"
 }
 
@@ -593,6 +597,9 @@ configure_zsh_theme() {
         # Download powerlevel10k theme
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/"$USERNAME"/.oh-my-zsh/custom/themes/powerlevel10k
         exit_code_check $? "Error while cloning Powerlevel10k theme" || exit 1
+
+        # Add theme to root
+        ln -s /home/$USERNAME/.p10k.zsh /root
 
         echolog "$GREEN" "Zsh theme installed correctly"
 }
