@@ -360,9 +360,9 @@ configure_keyboard() {
         update_checkpoint "Configure_keyboard"
         notify "Configuring console keyboard..."
 
-        # Modify tty keyboard layout (spanish layout, hardcoded for now)
-        sed -i -e 's/#es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/g' /etc/locale.gen
-        exit_code_check $? "Error while modifying /etc/locale.gen to add spanish keyboard layout" || exit 1
+        # Set locale and keymap
+        localectl set-locale Es_es.UTF-8
+        localectl set-keymap es
 
         # Generate locale (keyboard layout)
         locale-gen 1>/dev/null
