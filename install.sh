@@ -441,7 +441,7 @@ install_base_packages() {
         exit_code_check $? "Error while installing base packages" || exit 1
 
         # Make kitty always start as maximized
-        sudo sed -i 's/Exec=kitty/Exec=kitty --start-as maximized/g' /usr/share/applications/kitty.desktop
+        sudo sed -i 's/^Exec=kitty$/Exec=kitty --start-as maximized/g' /usr/share/applications/kitty.desktop
 
         # Set zsh as default shell
         chsh -s /bin/zsh 
