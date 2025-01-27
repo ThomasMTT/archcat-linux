@@ -437,7 +437,7 @@ install_base_packages() {
         notify "Installing base packages"
 
         # Installing base packages
-        pacman --noconfirm --quiet -S git wget nano kitty python-pip pacman-contrib zsh dconf-editor lsd bat
+        pacman --noconfirm --quiet -S git wget nano code kitty python-pip pacman-contrib zsh dconf-editor lsd bat
         exit_code_check $? "Error while installing base packages" || exit 1
 
         # Make kitty always start as maximized
@@ -558,7 +558,7 @@ remove_bloatware() {
 
         # Remove bloatware
         pacman --noconfirm -R gnome-tour gnome-user-docs gnome-maps gnome-music gnome-contacts \
-        gnome-weather simple-scan epiphany yelp gnome-console
+        gnome-weather simple-scan epiphany yelp gnome-console gnome-text-editor
 
         exit_code_check $? "Error while removing bloatware" || exit 1
 
