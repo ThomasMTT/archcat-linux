@@ -368,9 +368,6 @@ configure_keyboard() {
         locale-gen 1>/dev/null
         exit_code_check $? "Error while generating locale (keyboard layout)" || exit 1
 
-        # Make spanish default tty keyboard layout
-        echo "KEYMAP=es" >/etc/vconsole.conf
-
         echolog "$GREEN" "Keyboard configured successfully"
 }
 
