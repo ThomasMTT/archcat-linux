@@ -440,6 +440,9 @@ install_base_packages() {
         pacman --noconfirm --quiet -S git wget nano kitty python-pip pacman-contrib zsh dconf-editor lsd bat
         exit_code_check $? "Error while installing base packages" || exit 1
 
+        # Make kitty always start as maximized
+        sudo sed -i 's/Exec=kitty/Exec=kitty --start-as maximized/g' /usr/share/applications/kitty.desktop
+
         # Set zsh as default shell
         chsh -s /bin/zsh 
         chsh -s /bin/zsh "$USERNAME" 
@@ -665,7 +668,7 @@ prepare_gnome() {
                 echo -e "[daemon]\nAutomaticLoginEnable=true\nAutomaticLogin=$USERNAME" | tee /etc/gdm/custom.conf
 
                 # Create the gui installer using the username variable
-                echo -e "[Desktop Entry]\nType=Application\nName=ArchCatInstaller\nComment=Continue Installation, will be removed\nExec=/usr/bin/kitty -T 'ArchCat Installer' bash -c \"cd /mnt/Archcat && sleep 2; /mnt/Archcat/install.sh; exec /bin/zsh\"\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" | tee "/home/$USERNAME/.config/autostart/archcat.desktop"
+                echo -e "[Desktop Entry]\nType=Application\nName=ArchCatInstaller\nComment=Continue Installation, will be removed\nExec=/usr/bin/kitty --start-as maximized -T 'ArchCat Installer' bash -c \"cd /mnt/Archcat && sleep 2; /mnt/Archcat/install.sh; exec /bin/zsh\"\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" | tee "/home/$USERNAME/.config/autostart/archcat.desktop"
 
                 # Reboot to execute this script from gnome
                 echolog "$GREEN" "Reboot required, remove the installation media and enter"
