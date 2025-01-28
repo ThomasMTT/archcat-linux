@@ -661,8 +661,8 @@ prepare_gnome() {
                 sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.config/autostart/"
 
                 # Give Archcat folder permissions to user
-                chown -R "$USERNAME" /mnt/Archcat
-                chgrp -R "$USERNAME" /mnt/Archcat
+                sudo chown -R "$USERNAME" /mnt/Archcat
+                sudo chgrp -R "$USERNAME" /mnt/Archcat
 
                 # Enable auto login for the script to keep running
                 echo -e "[daemon]\nAutomaticLoginEnable=true\nAutomaticLogin=$USERNAME" | tee /etc/gdm/custom.conf
@@ -699,6 +699,10 @@ copy_config_files() {
 
         # Enable powerlevel10k config
         echo -e "\n[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh" >>/home/"$USERNAME"/.zshrc
+
+        # Set home folder permissions completely to user
+        sudo chown "$USERNAME" -R /home/"$USERNAME" 
+        sudo chgrp "$USERNAME" -R /home/"$USERNAME" 
 
         echolog "$GREEN" "Config files copied successfully"
 }
