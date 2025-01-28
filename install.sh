@@ -576,8 +576,10 @@ install_oh_my_zsh() {
         sudo -u "$USERNAME" sh -c "$(wget -q -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
         exit_code_check $? "Error while downloading/installing Oh My Zsh" || exit 1
 
-        # Alias bat as cat and lsd as ls if they arent added already
-        grep -q 'alias ls' /home/"$USERNAME"/.zshrc || echo -e "alias ls='lsd'\nalias cat='bat'" >>/home/"$USERNAME"/.zshrc
+        # Add custom .zshrc config
+        rm /home/"$USERNAME"/.zshrc
+        cp /mnt/Archcat/config/.zshrc /home/"$USERNAME"/.zshrc
+        exit_code_check $? "Error while copying .zshrc configuration" || exit 1
 
         # Add zsh config to root
         ln -s /home/$USERNAME/.zshrc /root
