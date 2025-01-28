@@ -576,11 +576,6 @@ install_oh_my_zsh() {
         sudo -u "$USERNAME" sh -c "$(wget -q -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
         exit_code_check $? "Error while downloading/installing Oh My Zsh" || exit 1
 
-        # Add custom .zshrc config
-        rm /home/"$USERNAME"/.zshrc
-        cp /mnt/Archcat/config/.zshrc /home/"$USERNAME"/.zshrc
-        exit_code_check $? "Error while copying .zshrc configuration" || exit 1
-
         # Add zsh config to root
         ln -s /home/$USERNAME/.zshrc /root
         cp -r /home/$USERNAME/.oh-my-zsh /root/
@@ -598,6 +593,11 @@ configure_zsh_theme() {
 
         # Add theme to root
         ln -s /home/$USERNAME/.p10k.zsh /root
+
+        # Add custom .zshrc config
+        rm /home/"$USERNAME"/.zshrc
+        cp /mnt/Archcat/config/.zshrc /home/"$USERNAME"/.zshrc
+        exit_code_check $? "Error while copying .zshrc configuration" || exit 1
 
         echolog "$GREEN" "Zsh theme installed correctly"
 }
