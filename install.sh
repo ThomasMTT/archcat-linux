@@ -135,17 +135,17 @@ gsettings_set() {
 
 # Define all checkpoints for the full installation process
 declare -a CHECKPOINTS=(
-        "Setup_filesystem" "Install_root_packages" "Generate_fstab" "Prepare_chroot"
+        "setup_filesystem" "install_root_packages" "generate_fstab" "prepare_chroot"
 
-        "Setup_system" "Configure_gnome" "Create_accounts" "Configure_hostname"
-        "Configure_keyboard" "Configure_timezone" "Configure_network" "Install_grub"
-        "Install_base_packages" "Install_gnome" "Install_vm_ext" "Install_aur"
-        "Remove_bloatware" "Install_oh_my_zsh" "Configure_zsh_theme"
-        "Install_zsh_plugins" "Install_nerd_fonts" "Prepare_gnome"
+        "setup_system" "configure_gnome" "create_accounts" "configure_hostname"
+        "configure_keyboard" "configure_timezone" "configure_network" "install_grub"
+        "install_base_packages" "install_gnome" "install_vm_ext" "install_aur"
+        "remove_bloatware" "install_oh_my_zsh" "configure_zsh_theme"
+        "install_zsh_plugins" "install_nerd_fonts" "prepare_gnome"
 
-        "Copy_config_files" "Configure_gnome_keyboard" "Configure_wallpaper"
-        "Qol_tweaks" "Install_gnome_extensions" "Configure_gnome_extensions"
-        "Install_gnome_icon_theme" "Cleanup"
+        "copy_config_files" "configure_gnome_keyboard" "configure_wallpaper"
+        "qol_tweaks" "install_gnome_extensions" "configure_gnome_extensions"
+        "install_gnome_icon_theme" "cleanup"
 )
 
 # Define files
@@ -243,7 +243,7 @@ setup_filesystem() {
 }
 
 install_root_packages() {
-        update_checkpoint "Install_root_packages"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing root packages..."
 
         packages="linux linux-firmware networkmanager grub wpa_supplicant base base-devel"
@@ -265,7 +265,7 @@ install_root_packages() {
 }
 
 generate_fstab() {
-        update_checkpoint "Generate_fstab"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Generating fstab..."
 
         # Generate fstab file
@@ -276,7 +276,7 @@ generate_fstab() {
 }
 
 prepare_chroot() {
-        update_checkpoint "Prepare_chroot"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Preparing chroot..."
 
         # Check that process is running outsite of chroot
@@ -304,7 +304,7 @@ prepare_chroot() {
 }
 
 create_accounts() {
-        update_checkpoint "Create_accounts"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Creating accounts..."
 
         # Set up root password
@@ -339,7 +339,7 @@ create_accounts() {
 }
 
 configure_hostname() {
-        update_checkpoint "Configure_hostname"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring hostname..."
 
         # Set Hostname
@@ -353,7 +353,7 @@ configure_hostname() {
 }
 
 configure_keyboard() {
-        update_checkpoint "Configure_keyboard"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring console keyboard..."
 
         # Modify tty keyboard layout (spanish layout, hardcoded for now)
@@ -368,7 +368,7 @@ configure_keyboard() {
 }
 
 configure_timezone() {
-        update_checkpoint "Configure_timezone"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring timezone..."
 
         # Set time zone to Madrid (Spain, hardcoded for now)
@@ -379,7 +379,7 @@ configure_timezone() {
 }
 
 configure_network() {
-        update_checkpoint "Configure_network"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring Network..."
 
         # Add local hosts
@@ -401,7 +401,7 @@ configure_network() {
 }
 
 install_grub() {
-        update_checkpoint "Install_grub"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing and configuring GRUB..."
 
         # Change the OS name from "Arch Linux" to "ArchCat"
@@ -429,7 +429,7 @@ install_grub() {
 }
 
 install_base_packages() {
-        update_checkpoint "Install_base_packages..."
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing base packages"
 
         # Installing base packages
@@ -447,7 +447,7 @@ install_base_packages() {
 }
 
 install_gnome() {
-        update_checkpoint "Install_gnome"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing desktop environment..."
 
         # Installing DE
@@ -466,7 +466,7 @@ install_gnome() {
 }
 
 install_vm_ext() {
-        update_checkpoint "Install_vm_ext"
+        update_checkpoint "${FUNCNAME[0]}"
 
         # In case of using virtual machine install extensions
 
@@ -519,7 +519,7 @@ install_vm_ext() {
 }
 
 install_aur() {
-        update_checkpoint "Install_aur"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Downloading and Installing AUR..."
 
         # Remove if it was already downloaded
@@ -549,7 +549,7 @@ install_aur() {
 }
 
 remove_bloatware() {
-        update_checkpoint "Remove_bloatware"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Removing bloatware..."
 
         # Remove bloatware
@@ -566,7 +566,7 @@ remove_bloatware() {
 }
 
 install_oh_my_zsh() {
-        update_checkpoint "Install_oh_my_zsh"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing Oh My Zsh..."
 
         # Delete old oh-my-zsh dir if exists
@@ -580,7 +580,7 @@ install_oh_my_zsh() {
 }
 
 configure_zsh_theme() {
-        update_checkpoint "Configure_zsh_theme"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing zsh theme"
 
         # Download powerlevel10k theme
@@ -599,7 +599,7 @@ configure_zsh_theme() {
 }
 
 install_zsh_plugins() {
-        update_checkpoint "Install_zsh_plugins"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Setting up Zsh plugins..."
 
         # Install autosuggestions
@@ -621,7 +621,7 @@ install_zsh_plugins() {
 }
 
 install_nerd_fonts() {
-        update_checkpoint "Install_nerd_fonts"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing Nerd fonts..."
 
         # Delete any previous files in case download fails
@@ -652,7 +652,7 @@ install_nerd_fonts() {
 prepare_gnome() {
 
         if [ "$DESKTOP_SESSION" != "gnome" ]; then
-                update_checkpoint "Prepare_gnome"
+                update_checkpoint "${FUNCNAME[0]}"
                 notify "Preparing gnome..."
 
                 # Create autostart dir
@@ -680,7 +680,7 @@ prepare_gnome() {
 }
 
 copy_config_files() {
-        update_checkpoint "Copy_config_files"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Copying configuration files..."
 
         # Copy kitty config file
@@ -706,7 +706,7 @@ copy_config_files() {
 }
 
 configure_gnome_keyboard() {
-        update_checkpoint "Configure_gnome_keyboard"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring keyboard input sources..."
 
         # Set keyboard input sources (spanish, hardcoded for now)
@@ -721,7 +721,7 @@ configure_gnome_keyboard() {
 }
 
 configure_wallpaper() {
-        update_checkpoint "Configure_wallpaper"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring wallpaper..."
 
         # Copy Wallpapers
@@ -741,7 +741,7 @@ configure_wallpaper() {
 }
 
 qol_tweaks() {
-        update_checkpoint "Qol_tweaks"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring quality of life tweaks..."
 
         # Set max volume to 150
@@ -766,7 +766,7 @@ qol_tweaks() {
 }
 
 install_gnome_extensions() {
-        update_checkpoint "Install_gnome_extensions"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing gnome shell extensions..."
 
         # Install extensions interactively (user prompt to install extensions) 
@@ -788,7 +788,7 @@ install_gnome_extensions() {
 }
 
 configure_gnome_extensions() {
-        update_checkpoint "Configure_gnome_extensions"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring gnome shell extensions..."
 
         # Runcat
@@ -835,7 +835,7 @@ configure_gnome_extensions() {
 }
 
 install_gnome_icon_theme() {
-        update_checkpoint "Install_gnome_icon_theme"
+        update_checkpoint "${FUNCNAME[0]}"
         notify "Installing papirus icon theme..."
 
         # Enable user themes
@@ -853,7 +853,7 @@ install_gnome_icon_theme() {
 }
 
 cleanup() {
-        update_checkpoint "Cleanup"
+        update_checkpoint "${FUNCNAME[0]}"
 
         # Disable auto login
         sudo rm -f /etc/gdm/custom.conf 2>/dev/null
@@ -946,29 +946,29 @@ main() {
                 case $Checkpoint in
 
                         # Setup system
-                        "Setup_filesystem") setup_filesystem || exit 1 ;;
-                        "Install_root_packages") install_root_packages || exit 1 ;;
-                        "Generate_fstab") generate_fstab || exit 1 ;;
-                        "Prepare_chroot") prepare_chroot || exit 1 ;;
+                        "setup_filesystem") setup_filesystem || exit 1 ;;
+                        "install_root_packages") install_root_packages || exit 1 ;;
+                        "generate_fstab") generate_fstab || exit 1 ;;
+                        "prepare_chroot") prepare_chroot || exit 1 ;;
 
                         # Configure system
-                        "Create_accounts") create_accounts || exit 1 ;;
-                        "Configure_hostname") configure_hostname || exit 1 ;;
-                        "Configure_keyboard") configure_keyboard || exit 1 ;;
-                        "Configure_timezone") configure_timezone || exit 1 ;;
-                        "Install_grub") install_grub || exit 1 ;;
-                        "Configure_network") configure_network || exit 1 ;;
-                        "Install_base_packages") install_base_packages || exit 1 ;;
-                        "Install_gnome") install_gnome || exit 1 ;;
-                        "Install_vm_ext") install_vm_ext || exit 1 ;;
-                        "Install_aur") install_aur || exit 1 ;;
-                        "Remove_bloatware") remove_bloatware || exit 1 ;;
-                        "Install_oh_my_zsh") install_oh_my_zsh || exit 1 ;;
-                        "Configure_zsh_theme") configure_zsh_theme || exit 1 ;;
-                        "Install_zsh_plugins") install_zsh_plugins || exit 1 ;;
-                        "Install_nerd_fonts") install_nerd_fonts || exit 1 ;;
-                        "Configure_terminal") configure_terminal || exit 1 ;;
-                        "Prepare_gnome")
+                        "create_accounts") create_accounts || exit 1 ;;
+                        "configure_hostname") configure_hostname || exit 1 ;;
+                        "configure_keyboard") configure_keyboard || exit 1 ;;
+                        "configure_timezone") configure_timezone || exit 1 ;;
+                        "install_grub") install_grub || exit 1 ;;
+                        "configure_network") configure_network || exit 1 ;;
+                        "install_base_packages") install_base_packages || exit 1 ;;
+                        "install_gnome") install_gnome || exit 1 ;;
+                        "install_vm_ext") install_vm_ext || exit 1 ;;
+                        "install_aur") install_aur || exit 1 ;;
+                        "remove_bloatware") remove_bloatware || exit 1 ;;
+                        "install_oh_my_zsh") install_oh_my_zsh || exit 1 ;;
+                        "configure_zsh_theme") configure_zsh_theme || exit 1 ;;
+                        "install_zsh_plugins") install_zsh_plugins || exit 1 ;;
+                        "install_nerd_fonts") install_nerd_fonts || exit 1 ;;
+                        "configure_terminal") configure_terminal || exit 1 ;;
+                        "prepare_gnome")
                                 prepare_gnome
                                 exit_code=$?
                                 [ $exit_code -eq 100 ] && exit 100
@@ -976,14 +976,14 @@ main() {
                                 ;;
 
                         # Configure gnome after reboot
-                        "Copy_config_files") copy_config_files || exit 1 ;;
-                        "Configure_gnome_keyboard") configure_gnome_keyboard || exit 1 ;;
-                        "Configure_wallpaper") configure_wallpaper || exit 1 ;;
-                        "Qol_tweaks") qol_tweaks || exit 1 ;;
-                        "Install_gnome_extensions") install_gnome_extensions || exit 1 ;;
-                        "Configure_gnome_extensions") configure_gnome_extensions || exit 1 ;;
-                        "Install_gnome_icon_theme") install_gnome_icon_theme || exit 1 ;;
-                        "Cleanup") cleanup || exit 1 ;;
+                        "copy_config_files") copy_config_files || exit 1 ;;
+                        "configure_gnome_keyboard") configure_gnome_keyboard || exit 1 ;;
+                        "configure_wallpaper") configure_wallpaper || exit 1 ;;
+                        "qol_tweaks") qol_tweaks || exit 1 ;;
+                        "install_gnome_extensions") install_gnome_extensions || exit 1 ;;
+                        "configure_gnome_extensions") configure_gnome_extensions || exit 1 ;;
+                        "install_gnome_icon_theme") install_gnome_icon_theme || exit 1 ;;
+                        "cleanup") cleanup || exit 1 ;;
                 esac
         done
 }
