@@ -144,8 +144,8 @@ declare -a CHECKPOINTS=(
         "Install_zsh_plugins" "Install_nerd_fonts" "Prepare_gnome"
 
         "Copy_config_files" "Configure_gnome_keyboard" "Configure_wallpaper"
-        "Qol_tweaks" "Configure_default_apps" "Install_gnome_extensions"
-        "Configure_gnome_extensions" "Install_gnome_icon_theme" "Cleanup"
+        "Qol_tweaks" "Install_gnome_extensions" "Configure_gnome_extensions"
+        "Install_gnome_icon_theme" "Cleanup"
 )
 
 # Define files
@@ -704,10 +704,6 @@ copy_config_files() {
         # Enable powerlevel10k config
         echo -e "\n[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh" >>/home/"$USERNAME"/.zshrc
 
-        # Set home folder permissions completely to user
-        chown "$USERNAME" -R /home/"$USERNAME" 
-        chgrp "$USERNAME" -R /home/"$USERNAME" 
-
         echolog "$GREEN" "Config files copied successfully"
 }
 
@@ -751,14 +747,11 @@ qol_tweaks() {
         # Set max volume to 150
         gsettings_set org.gnome.desktop.sound allow-volume-above-100-percent true || exit 1
 
-        # When in text editor highlight current line
-        gsettings_set org.gnome.TextEditor highlight-current-line true || exit 1
-
         # Show battery percentage
         gsettings_set org.gnome.desktop.interface show-battery-percentage true || exit 1
 
-        # Show weekdate in taskbar
-        gsettings_set org.gnome.desktop.calendar show-weekdate true || exit 1
+        # Show weekday in taskbar
+        gsettings_set org.gnome.desktop.interface clock-show-weekday true || exit 1
 
         # Disable clocks and character search-providers
         gsettings_set org.gnome.desktop.search-providers disabled "['org.gnome.clocks.desktop', 'org.gnome.Characters.desktop']" || exit 1
@@ -772,22 +765,13 @@ qol_tweaks() {
         echolog "$GREEN" "Quality of life changes configured in gnome"
 }
 
-configure_default_apps() {
-        update_checkpoint "Configure_default_apps"
-        notify "Configuring default apps..."
-
-        # Set text editor as default compared to nvim
-        xdg-mime default org.gnome.TextEditor.desktop text/plain
-
-        echolog "$GREEN" "Default apps configured"
-}
-
 install_gnome_extensions() {
         update_checkpoint "Install_gnome_extensions"
         notify "Installing gnome shell extensions..."
 
-        # Install extensions
-        gext -F install dash-to-panel@jderose9.github.com arcmenu@arcmenu.com \
+        # Install extensions interactively (user prompt to install extensions) 
+        # wont use -F flag until the creator of gext fixes issue: #35
+        gext install dash-to-panel@jderose9.github.com arcmenu@arcmenu.com \
         clipboard-indicator@tudmotu.com arch-update@RaphaelRochet IP-Finder@linxgem33.com \
         caffeine@patapon.info runcat@kolesnikov.se
         exit_code_check "$?" "Error while installing extensions" || exit 1
@@ -825,6 +809,7 @@ configure_gnome_extensions() {
 
         # ArcMenu
         extension="org.gnome.shell.extensions.arcmenu"
+        gsettings_set $extension multi-monitor true
         gsettings_set $extension menu-layout "'Raven'" || exit 1
         gsettings_set $extension menu-button-fg-color "(true, 'rgb(98,160,234)')" || exit 1
         gsettings_set $extension distro-icon 6 || exit 1
@@ -995,7 +980,6 @@ main() {
                         "Configure_gnome_keyboard") configure_gnome_keyboard || exit 1 ;;
                         "Configure_wallpaper") configure_wallpaper || exit 1 ;;
                         "Qol_tweaks") qol_tweaks || exit 1 ;;
-                        "Configure_default_apps") configure_default_apps || exit 1 ;;
                         "Install_gnome_extensions") install_gnome_extensions || exit 1 ;;
                         "Configure_gnome_extensions") configure_gnome_extensions || exit 1 ;;
                         "Install_gnome_icon_theme") install_gnome_icon_theme || exit 1 ;;
