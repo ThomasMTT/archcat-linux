@@ -296,10 +296,6 @@ prepare_chroot() {
                 arch-chroot /mnt /mnt/Archcat/install.sh
                 local exitcode=$?
 
-                # Update directories
-                rsync -av --update ./ /mnt/Archcat &>/dev/null
-                rsync -av --update /mnt/Archcat/ ./ &>/dev/null
-
                 # Reboot if necessary
                 [ $exitcode -eq 100 ] && reboot
 
