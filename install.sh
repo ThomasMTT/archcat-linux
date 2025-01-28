@@ -437,7 +437,7 @@ install_base_packages() {
         exit_code_check $? "Error while installing base packages" || exit 1
 
         # Make kitty always start as maximized
-        sudo sed -i 's/^Exec=kitty$/Exec=kitty --start-as maximized/g' /usr/share/applications/kitty.desktop
+        sed -i 's/^Exec=kitty$/Exec=kitty --start-as maximized/g' /usr/share/applications/kitty.desktop
 
         # Set zsh as default shell
         chsh -s /bin/zsh 
@@ -559,7 +559,7 @@ remove_bloatware() {
         exit_code_check $? "Error while removing bloatware" || exit 1
 
         # Remove cached packages
-        sudo pacman --noconfirm -Scc
+        pacman --noconfirm -Scc
         exit_code_check $? "Error while removing cache" || exit 1
 
         echolog "$GREEN" "Bloatware removed successfully"
@@ -583,7 +583,7 @@ install_oh_my_zsh() {
 
         # Add zsh config to root
         ln -s /home/$USERNAME/.zshrc /root
-        ln -s /home/$USERNAME/.oh-my-zsh/ /root
+        cp -r /home/$USERNAME/.oh-my-zsh /root/
         
         echolog "$GREEN" "Oh My Zsh installed successfully"
 }
