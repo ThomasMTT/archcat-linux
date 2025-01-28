@@ -186,9 +186,9 @@ setup_filesystem() {
         echolog "$GREEN" "Filesystem is already formatted. And has now been successfully mounted"
 
         else
-                for i in $(seq 1 $part_count); do
-                        wipefs -a /dev/${SELECTED_DRIVE}${p}${i}
-                        parted /dev/"$SELECTED_DRIVE" rm $i
+                for part in $(seq 1 $part_count); do
+                        wipefs -a /dev/${SELECTED_DRIVE}${p}${part}
+                        parted /dev/"$SELECTED_DRIVE" rm $part
                 done
 
                 # Check if the system is UEFI
@@ -948,8 +948,8 @@ main() {
         done
 
         # Run through the installation sequence from last checkpoint
-        for ((i = last_checkpoint_index + 1; i < ${#CHECKPOINTS[@]}; i++)); do
-                Checkpoint=${CHECKPOINTS[$i]}
+        for ((j = last_checkpoint_index + 1; j < ${#CHECKPOINTS[@]}; j++)); do
+                Checkpoint=${CHECKPOINTS[$j]}
 
                 case $Checkpoint in
 
