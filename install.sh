@@ -360,12 +360,16 @@ configure_keyboard() {
         update_checkpoint "Configure_keyboard"
         notify "Configuring console keyboard..."
 
-        # Set locale and keymap
-        localectl set-locale Es_es.UTF-8
-        localectl set-keymap es
+        # Modify tty keyboard layout (spanish layout, hardcoded for now)
+        sed -i -e 's/#es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/g' /etc/locale.gen
+        exit_code_check $? "Error while modifying /etc/locale.gen to add spanish keyboard layout" || exit 1
 
         # Generate locale (keyboard layout)
         locale-gen 1>/dev/null
+
+        # Set keymap
+        localectl set-keymap es
+
         exit_code_check $? "Error while generating locale (keyboard layout)" || exit 1
 
         echolog "$GREEN" "Keyboard configured successfully"
@@ -713,6 +717,9 @@ configure_gnome_keyboard() {
 
         # Set keyboard input sources (spanish, hardcoded for now)
         gsettings_set org.gnome.desktop.input-sources sources "[('xkb', 'es')]" || exit 1
+
+        # Set locale
+        localectl set-locale LANG=es_ES.UTF-8
 
         echolog "$GREEN" "Keyboard configured in gnome"
 }
