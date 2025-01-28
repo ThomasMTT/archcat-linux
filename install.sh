@@ -828,7 +828,7 @@ configure_gnome_extensions() {
 
         # Arch Update
         extension="org.gnome.shell.extensions.arch-update"
-        gsettings_set $extension update-cmd "'/usr/bin/kitty -T \"Archcat Update\" sh -c \"sudo pacman -Syu ; echo Done - Exitting in 3s ; sleep 3\"'" || exit 1
+        gsettings_set $extension update-cmd "'/usr/bin/kitty -T \"Archcat Update\" sh -c \"sudo pacman -Syu ; paru -Syu ; which pipx &>/dev/null && pipx upgrade-all ; echo DONE! ; sleep 2\"'" || exit 1
         gsettings_set $extension always-visible false || exit 1
 
         echolog "$GREEN" "Gnome extensions configured succeessfully"
