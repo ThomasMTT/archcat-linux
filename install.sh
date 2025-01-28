@@ -931,16 +931,14 @@ main() {
         fi
 
         # Determine the starting index based on last checkpoint
-        last_checkpoint_index=-1
         for i in "${!CHECKPOINTS[@]}"; do
                 if [ "${CHECKPOINTS[$i]}" == "$last_checkpoint" ]; then
-                        last_checkpoint_index=$((i - 1))
                         break
                 fi
         done
 
         # Run through the installation sequence from last checkpoint
-        for ((j = last_checkpoint_index + 1; j < ${#CHECKPOINTS[@]}; j++)); do
+        for ((j = i; j < ${#CHECKPOINTS[@]}; j++)); do
                 Checkpoint=${CHECKPOINTS[$j]}
 
                 case $Checkpoint in
