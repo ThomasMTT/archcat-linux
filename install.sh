@@ -187,8 +187,8 @@ setup_filesystem() {
 
         else
                 for part in $(seq 1 $part_count); do
-                        wipefs -a /dev/${SELECTED_DRIVE}${p}${part}
-                        parted /dev/"$SELECTED_DRIVE" rm $part
+                        wipefs -a /dev/${SELECTED_DRIVE}${p}${part} 2>/dev/null
+                        parted /dev/"$SELECTED_DRIVE" rm $part 2>/dev/null
                 done
 
                 # Check if the system is UEFI
