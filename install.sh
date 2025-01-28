@@ -946,44 +946,44 @@ main() {
                 case $Checkpoint in
 
                         # Setup system
-                        "setup_filesystem") setup_filesystem || exit 1 ;;
-                        "install_root_packages") install_root_packages || exit 1 ;;
-                        "generate_fstab") generate_fstab || exit 1 ;;
-                        "prepare_chroot") prepare_chroot || exit 1 ;;
+                        "setup_filesystem") $Checkpoint || exit 1 ;;
+                        "install_root_packages") $Checkpoint || exit 1 ;;
+                        "generate_fstab") $Checkpoint || exit 1 ;;
+                        "prepare_chroot") $Checkpoint || exit 1 ;;
 
                         # Configure system
-                        "create_accounts") create_accounts || exit 1 ;;
-                        "configure_hostname") configure_hostname || exit 1 ;;
-                        "configure_keyboard") configure_keyboard || exit 1 ;;
-                        "configure_timezone") configure_timezone || exit 1 ;;
-                        "install_grub") install_grub || exit 1 ;;
-                        "configure_network") configure_network || exit 1 ;;
-                        "install_base_packages") install_base_packages || exit 1 ;;
-                        "install_gnome") install_gnome || exit 1 ;;
-                        "install_vm_ext") install_vm_ext || exit 1 ;;
-                        "install_aur") install_aur || exit 1 ;;
-                        "remove_bloatware") remove_bloatware || exit 1 ;;
-                        "install_oh_my_zsh") install_oh_my_zsh || exit 1 ;;
-                        "configure_zsh_theme") configure_zsh_theme || exit 1 ;;
-                        "install_zsh_plugins") install_zsh_plugins || exit 1 ;;
-                        "install_nerd_fonts") install_nerd_fonts || exit 1 ;;
-                        "configure_terminal") configure_terminal || exit 1 ;;
+                        "create_accounts") $Checkpoint || exit 1 ;;
+                        "configure_hostname") $Checkpoint || exit 1 ;;
+                        "configure_keyboard") $Checkpoint || exit 1 ;;
+                        "configure_timezone") $Checkpoint || exit 1 ;;
+                        "install_grub") $Checkpoint || exit 1 ;;
+                        "configure_network") $Checkpoint || exit 1 ;;
+                        "install_base_packages") $Checkpoint || exit 1 ;;
+                        "install_gnome") $Checkpoint || exit 1 ;;
+                        "install_vm_ext") $Checkpoint || exit 1 ;;
+                        "install_aur") $Checkpoint || exit 1 ;;
+                        "remove_bloatware") $Checkpoint || exit 1 ;;
+                        "install_oh_my_zsh") $Checkpoint || exit 1 ;;
+                        "configure_zsh_theme") $Checkpoint || exit 1 ;;
+                        "install_zsh_plugins") $Checkpoint || exit 1 ;;
+                        "install_nerd_fonts") $Checkpoint || exit 1 ;;
+                        "configure_terminal") $Checkpoint || exit 1 ;;
                         "prepare_gnome")
-                                prepare_gnome
+                                $Checkpoint
                                 exit_code=$?
                                 [ $exit_code -eq 100 ] && exit 100
                                 [ $exit_code -ne 0 ] && exit 1
                                 ;;
 
                         # Configure gnome after reboot
-                        "copy_config_files") copy_config_files || exit 1 ;;
-                        "configure_gnome_keyboard") configure_gnome_keyboard || exit 1 ;;
-                        "configure_wallpaper") configure_wallpaper || exit 1 ;;
-                        "qol_tweaks") qol_tweaks || exit 1 ;;
-                        "install_gnome_extensions") install_gnome_extensions || exit 1 ;;
-                        "configure_gnome_extensions") configure_gnome_extensions || exit 1 ;;
-                        "install_gnome_icon_theme") install_gnome_icon_theme || exit 1 ;;
-                        "cleanup") cleanup || exit 1 ;;
+                        "copy_config_files") $Checkpoint || exit 1 ;;
+                        "configure_gnome_keyboard") $Checkpoint || exit 1 ;;
+                        "configure_wallpaper") $Checkpoint || exit 1 ;;
+                        "qol_tweaks") $Checkpoint || exit 1 ;;
+                        "install_gnome_extensions") $Checkpoint || exit 1 ;;
+                        "configure_gnome_extensions") $Checkpoint || exit 1 ;;
+                        "install_gnome_icon_theme") $Checkpoint || exit 1 ;;
+                        "cleanup") $Checkpoint || exit 1 ;;
                 esac
         done
 }
