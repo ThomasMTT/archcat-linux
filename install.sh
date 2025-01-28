@@ -575,10 +575,6 @@ install_oh_my_zsh() {
         # Download and install oh my zsh
         sudo -u "$USERNAME" sh -c "$(wget -q -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
         exit_code_check $? "Error while downloading/installing Oh My Zsh" || exit 1
-
-        # Add zsh config to root
-        ln -s /home/$USERNAME/.zshrc /root
-        cp -r /home/$USERNAME/.oh-my-zsh /root/
         
         echolog "$GREEN" "Oh My Zsh installed successfully"
 }
@@ -613,10 +609,14 @@ install_zsh_plugins() {
         # Install syntax highlighting
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /home/"$USERNAME"/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
         exit_code_check $? "Error while cloning zsh-syntax-highlighting" || exit 1
-
-        # Enable all plugins
-        sed -i 's/plugins=.*$/plugins=(git sudo zsh-autosuggestions zsh-syntax-highlighting history)/g' /home/"$USERNAME"/.zshrc
-
+        
+        # Add .zshrc and .oh-my-zsh to root
+        ln -s /home/$USERNAME/.zshrc /root
+        exit_code_check $? "Error while linking .zshrc config to /root" || exit 1
+        
+        cp -r /home/$USERNAME/.oh-my-zsh /root/
+        exit_code_check $? "Error while copying .oh-my-zsh config to /root" || exit 1
+        
         echolog "$GREEN" "Zsh plugins installed correctly"
 }
 
