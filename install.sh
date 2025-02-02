@@ -863,10 +863,6 @@ cleanup() {
         sudo rm "/home/$USERNAME/.*pre-oh-my-zsh*" 2>/dev/null
         sudo rm "/home/$USERNAME/.wget-hsts" 2>/dev/null
 
-        # Move archcat.sh to bin to be a regular command
-        sudo cp /mnt/Archcat/tools/archcat.sh /usr/local/bin/archcat 2>/dev/null
-        exit_code_check "$?" "Error while adding archcat as a system command" || exit 1
-
         # Remove installer from system
         sudo rm -rf /mnt/Archcat 2>/dev/null
         exit_code_check "$?" "Error while removing installer" || exit 1
