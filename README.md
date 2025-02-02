@@ -1,5 +1,5 @@
-# Archcat - An Arch Linux-based Distribution
-Welcome to Archcat, a lightweight and customizable Linux distribution based on Arch Linux. Archcat is designed to provide a streamlined installation process while offering a flexible and robust system. This README will guide you through the setup process and provide troubleshooting tips.
+# Archcat - An Arch Linux Installer
+Welcome to Archcat, a lightweight Arch Linux installer. Archcat is designed to provide a streamlined installation process while offering a flexible and robust system.
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -7,9 +7,8 @@ Welcome to Archcat, a lightweight and customizable Linux distribution based on A
 3. [Requirements](#requirements)
 4. [Checkpoint System](#checkpoint-system)
 5. [Installation Instructions](#installation-instructions)
-6. [Archcat CLI](#Archcat-cli)
-7. [Additional Resources](#additional-resources)
-
+6. [Additional Resources](#additional-resources)
+   
 ## Project Overview
 Archcat is designed to offer a quick and flexible installation process for users seeking a customized Arch Linux-based environment. It features a comprehensive installation script with checkpoints to ensure a smooth setup experience.
 
@@ -38,14 +37,11 @@ Here's an example of the Archcat desktop environment, showing light and dark mod
 ## Requirements
 Before installing Archcat, ensure your system meets the following requirements:
 
-- **Hardware Requirements**:
+- **Requirements**:
   - 2 GB or more of RAM
   - At least 20 GB of disk space.
   - An internet connection
-
-- **Software Requirements**:
   - A bootable Arch Linux installation environment
-  - Ability to get the code on the Archiso installer via USB or Git
 
 ## Checkpoint System
 Archcat uses a [Checkpoint system](https://github.com/ThomasMTT/checkpoint-sh) to ensure a seamless installation process.<br>
@@ -72,32 +68,11 @@ If the script is interrupted or an error occurs, the checkpoint system allows yo
    - Follow the on-screen prompts to complete the setup.
    - WARNING: your selected disk and all its partitions will be wiped
 
-## archcat CLI
-The [Archcat command](https://github.com/ThomasMTT/Archcat-cli) allows you to install predefined modules, representing specific groups of software packages, system configurations, or additional repositories.<br>
-To use "archcat" simply run the command from a terminal after completing the initial Archcat installation.
-
-### Using archcat
-1. **Run archcat**:
-   - Open a terminal and type `archcat`.
-   - A menu will appear with various module options.
-
-2. **Select Modules**:
-   - Use the menu to choose which modules to install.
-   - Confirm your selections to initiate the installation process.
-
-3. **Complete Installation**:
-   - Follow the prompts to complete module installation.
-   - After the process is complete, you might need to reboot your system for some changes to take effect.
-
-#### Additional Notes
-- **Updates:** [Archcat-Cli](https://github.com/ThomasMTT/Archcat-cli) will update itself on executing `archcat` if a newer version is available 
-
 ## Additional Resources
 For more information and additional support, you can visit the following resources:
 
-**Archcat Repositories**
+**Archcat Repository**
 - **Archcat Linux GitHub Repository**: [Archcat-Linux GitHub Repository](https://github.com/ThomasMTT/archcat-linux)
-- **Archcat CLI GitHub Repository**: [Archcat-Cli GitHub Repository](https://github.com/ThomasMTT/Archcat-cli)
 
 **Arch Linux Troubleshooting**
 - **Arch Linux Installation Guide**: [Arch Linux Installation Guide](https://wiki.archlinux.org/title/Installation_guide)
