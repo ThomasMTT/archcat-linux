@@ -433,7 +433,7 @@ install_base_packages() {
         notify "Installing base packages"
 
         # Installing base packages
-        pacman --noconfirm --quiet -S git wget nano code kitty python-pip pacman-contrib zsh dconf-editor lsd bat
+        pacman --noconfirm --quiet -S git wget nano code kitty python-pip pacman-contrib zsh dconf-editor lsd bat mission-center
         exit_code_check $? "Error while installing base packages" || exit 1
 
         # Make kitty always start as maximized
