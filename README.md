@@ -71,9 +71,6 @@ If the script is interrupted or an error occurs, the checkpoint system allows yo
 ## Additional Resources
 For more information and additional support, you can visit the following resources:
 
-**Archcat Repository**
-- **Archcat Linux GitHub Repository**: [Archcat-Linux GitHub Repository](https://github.com/ThomasMTT/archcat-linux)
-
 **Arch Linux Troubleshooting**
 - **Arch Linux Installation Guide**: [Arch Linux Installation Guide](https://wiki.archlinux.org/title/Installation_guide)
 - **Arch Linux General Troubleshooting**: [Arch Linux Troubleshooting](https://wiki.archlinux.org/title/Troubleshooting)
