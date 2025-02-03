@@ -67,11 +67,27 @@ check_fs() {
                 # Check if root partition is mounted
                 if ! mountpoint -q "$root_mount_point"; then
 
-                        # Mount root
-                        mount /dev/"$drive"${p}3 "$root_mount_point" || {
-                                notify "Failed to mount /dev/${drive}${p}3 on $root_mount_point."
-                                exit 1
-                        }
+                        if [[ $ENCRYPTION_ENABLED == "true" ]]; then
+
+                                # Open root
+                                echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}3 cryptroot
+                                exit_code=$?
+                                [[ $exit_code == 5 ]] && exit_code=0
+                                exit_code_check "$exit_code" "Error while opening encrypted root partition. exiting..." || exit 1
+
+                                # Mount cryptroot
+                                mount /dev/mapper/cryptroot "$root_mount_point" || {
+                                        notify "Failed to mount cryptroot on $root_mount_point."
+                                        exit 1
+                                }
+                        else
+
+                                # Mount root
+                                mount /dev/"$drive"${p}3 "$root_mount_point" || {
+                                        notify "Failed to mount /dev/${drive}${p}3 on $root_mount_point."
+                                        exit 1
+                                }
+                        fi
                 fi
 
                 # Check if boot partition is mounted
@@ -90,11 +106,24 @@ check_fs() {
                 # Check if swap is enabled
                 if ! grep -q "/dev/${drive}${p}2" /proc/swaps; then
 
-                        # Enable swap
-                        swapon /dev/"$drive"${p}2 || {
-                                notify "Failed to enable swap on /dev/${drive}${p}2."
-                                exit 1
-                        }
+                        if [[ $ENCRYPTION_ENABLED == "true" ]]; then
+
+                                echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}2 cryptswap
+                                exit_code=$?
+                                [[ $exit_code == 5 ]] && exit_code=0
+                                exit_code_check "$exit_code" "Error while opening encrypted swap partition. exiting..." || exit 1
+
+                                swapon /dev/mapper/cryptswap || {
+                                        notify "Failed to enable swap"
+                                        exit 1
+                                }
+                        else
+                                # Enable swap
+                                swapon /dev/"$drive"${p}2 || {
+                                        notify "Failed to enable swap"
+                                        exit 1
+                                }
+                        fi       
                 fi
         fi
 }
@@ -138,10 +167,10 @@ declare -a CHECKPOINTS=(
         "setup_filesystem" "install_root_packages" "generate_fstab" "prepare_chroot"
 
         "setup_system" "configure_gnome" "create_accounts" "configure_hostname"
-        "configure_keyboard" "configure_timezone" "configure_network" "install_grub"
-        "install_base_packages" "install_gnome" "install_vm_ext" "install_aur"
-        "remove_bloatware" "install_oh_my_zsh" "configure_zsh_theme"
-        "install_zsh_plugins" "install_nerd_fonts" "prepare_gnome"
+        "configure_keyboard" "configure_timezone" "configure_network" "configure_mkinitcpio" 
+        "install_grub" "install_base_packages" "install_gnome" "install_vm_ext" "install_aur"
+        "remove_bloatware" "install_oh_my_zsh" "configure_zsh_theme" "install_zsh_plugins"
+        "install_nerd_fonts" "prepare_gnome"
 
         "copy_config_files" "configure_gnome_keyboard" "configure_wallpaper"
         "qol_tweaks" "install_gnome_extensions" "configure_gnome_extensions"
@@ -219,21 +248,48 @@ setup_filesystem() {
                         exit_code_check "$?" "Error while marking the boot partition as bootable. exiting..." || exit 1
                 fi
 
-                # Common partition setup
-                parted /dev/"$SELECTED_DRIVE" --script mkpart primary linux-swap 513MB 5GB
-                exit_code_check "$?" "Error while setting up the swap partition. exiting..." || exit 1
+                if [[ $ENCRYPTION_ENABLED == "true" ]]; then
+                        # Encrypt the swap partition
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE"${p}2
+                        exit_code_check "$?" "Error while setting up LUKS encryption on swap partition. exiting..." || exit 1
 
-                parted /dev/"$SELECTED_DRIVE" --script mkpart primary ext4 5GB 100%
-                exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}2 cryptswap
+                        exit_code=$?
+                        [[ $exit_code == 5 ]] && exit_code=0
+                        exit_code_check "$exit_code" "Error while opening encrypted swap partition. exiting..." || exit 1
 
+                        mkswap /dev/mapper/cryptswap
+                        exit_code_check "$?" "Error while formatting encrypted swap partition. exiting..." || exit 1
+
+                        # Encrypt the root partition
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE"${p}3
+                        exit_code_check "$?" "Error while setting up LUKS encryption on root partition. exiting..." || exit 1
+
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}3 cryptroot
+                        exit_code=$?
+                        [[ $exit_code == 5 ]] && exit_code=0
+                        exit_code_check "$exit_code" "Error while opening encrypted root partition. exiting..." || exit 1
+
+                        mkfs.ext4 /dev/mapper/cryptroot
+                        exit_code_check "$?" "Error while formatting encrypted root partition. exiting..." || exit 1
+                else
+                        # Normal setup
+                        parted /dev/"$SELECTED_DRIVE" --script mkpart primary linux-swap 513MB 5GB
+                        exit_code_check "$?" "Error while setting up the swap partition. exiting..." || exit 1
+
+                        mkswap /dev/"$SELECTED_DRIVE"${p}2 
+                        exit_code_check "$?" "Error while formatting swap partition. exiting..." || exit 1
+
+                        parted /dev/"$SELECTED_DRIVE" --script mkpart primary ext4 5GB 100%
+                        exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
+
+                        mkfs.ext4 /dev/"$SELECTED_DRIVE"${p}3 
+                        exit_code_check "$?" "Error while formatting root partition. exiting..." || exit 1
+                fi
+
+                
                 mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE"${p}1 
                 exit_code_check "$?" "Error while formatting boot/EFI partition. exiting..." || exit 1
-
-                mkswap /dev/"$SELECTED_DRIVE"${p}2 
-                exit_code_check "$?" "Error while formatting swap partition. exiting..." || exit 1
-
-                mkfs.ext4 /dev/"$SELECTED_DRIVE"${p}3 
-                exit_code_check "$?" "Error while formatting root partition. exiting..." || exit 1
 
                 # Mount filesystem
                 check_fs || exit 1
@@ -247,6 +303,8 @@ install_root_packages() {
         notify "Installing root packages..."
 
         packages="linux linux-firmware networkmanager grub wpa_supplicant base base-devel"
+
+        [[ $ENCRYPTION_ENABLED == "true" ]] && packages+=" lvm2 cryptsetup"
 
         # Add efi boot manager if uefi
         is_uefi && packages+=" efibootmgr"
@@ -311,6 +369,7 @@ create_accounts() {
         if [ "$(passwd -S root | awk '{print $2}')" != "P" ]; then
                 echo "$ROOT_PASSWORD" | passwd --stdin
                 exit_code_check $? "Error while assigning root password" || exit 1
+                unset ROOT_PASSWORD
         fi
 
         # Set up user if it doesnt exist already
@@ -329,6 +388,7 @@ create_accounts() {
         if [ "$(passwd -S "$USERNAME" | awk '{print $2}')" != "P" ]; then
                 echo "$USER_PASSWORD" | passwd "$USERNAME" --stdin
                 exit_code_check $? "Error while assigning password to $USERNAME" || exit 1
+                unset USER_PASSWORD
         fi
 
         # Allow users in the wheel group to execute any command (no password required until installation is finished)
@@ -400,6 +460,31 @@ configure_network() {
         echolog "$GREEN" "Network has been configured"
 }
 
+configure_mkinitcpio() {
+        update_checkpoint "${FUNCNAME[0]}"
+        if [[ $ENCRYPTION_ENABLED == "true" ]]; then
+                notify "Configuring mkinitcpio..."
+                sed -i '/^HOOKS=/ s/filesystems/encrypt lvm2 &/g' /etc/mkinitcpio.conf
+                exit_code_check $? "Error while configuring mkinitcpio" || exit 1
+
+                dd if=/dev/urandom of=/etc/cryptswap.key bs=1024 count=16
+                exit_code_check $? "Error while creating swap decryption key" || exit 1
+
+                chmod 0400 /etc/cryptswap.key
+                exit_code_check $? "Error while configuring swap decryption key perms" || exit 1
+                
+                echo "$ENCRYPTION_PASSWORD" | cryptsetup luksAddKey "/dev/${drive}${p}2" /etc/cryptswap.key
+
+                cryptswap_uuid=$(blkid -o value -s UUID /dev/"$SELECTED_DRIVE""${p}"2)
+                echo "cryptswap UUID=$cryptswap_uuid /etc/cryptswap.key swap,cipher=aes-cbc-essiv:sha256" > /etc/crypttab
+
+                mkinitcpio -P
+                exit_code_check $? "Error while applying mkinitcpio config" || exit 1
+
+                echolog "$GREEN" "Mkinitcpio has been configured" 
+        fi
+}
+
 install_grub() {
         update_checkpoint "${FUNCNAME[0]}"
         notify "Installing and configuring GRUB..."
@@ -417,6 +502,16 @@ install_grub() {
                 grub-install --target=i386-pc /dev/"$SELECTED_DRIVE"
                 exit_code_check $? "Error while installing GRUB" || exit 1
         fi
+
+        if [[ $ENCRYPTION_ENABLED == "true" ]]; then
+                cryptroot_uuid=$(blkid -o value -s UUID /dev/"$SELECTED_DRIVE""${p}"3)
+                root_uuid=$(blkid -o value -s UUID /dev/mapper/cryptroot)
+                grub_auto_decrypt="cryptdevice=UUID=$cryptroot_uuid:cryptroot root=UUID=$root_uuid"
+
+                sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/quiet/& $grub_auto_decrypt/g" /etc/default/grub
+                exit_code_check $? "Error while configuring grub" || exit 1
+
+        fi 
 
         # Disable ipv6 (causes trouble with openvpn)
         #sed -i -e 's/^GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
@@ -940,28 +1035,29 @@ main() {
                 case $Checkpoint in
 
                         # Setup system
-                        "setup_filesystem") $Checkpoint || exit 1 ;;
+                        "setup_filesystem")      $Checkpoint || exit 1 ;;
                         "install_root_packages") $Checkpoint || exit 1 ;;
-                        "generate_fstab") $Checkpoint || exit 1 ;;
-                        "prepare_chroot") $Checkpoint || exit 1 ;;
+                        "generate_fstab")        $Checkpoint || exit 1 ;;
+                        "prepare_chroot")        $Checkpoint || exit 1 ;;
 
                         # Configure system
-                        "create_accounts") $Checkpoint || exit 1 ;;
-                        "configure_hostname") $Checkpoint || exit 1 ;;
-                        "configure_keyboard") $Checkpoint || exit 1 ;;
-                        "configure_timezone") $Checkpoint || exit 1 ;;
-                        "install_grub") $Checkpoint || exit 1 ;;
-                        "configure_network") $Checkpoint || exit 1 ;;
+                        "create_accounts")       $Checkpoint || exit 1 ;;
+                        "configure_hostname")    $Checkpoint || exit 1 ;;
+                        "configure_keyboard")    $Checkpoint || exit 1 ;;
+                        "configure_timezone")    $Checkpoint || exit 1 ;;
+                        "configure_mkinitcpio")  $Checkpoint || exit 1;;
+                        "install_grub")          $Checkpoint || exit 1 ;;
+                        "configure_network")     $Checkpoint || exit 1 ;;
                         "install_base_packages") $Checkpoint || exit 1 ;;
-                        "install_gnome") $Checkpoint || exit 1 ;;
-                        "install_vm_ext") $Checkpoint || exit 1 ;;
-                        "install_aur") $Checkpoint || exit 1 ;;
-                        "remove_bloatware") $Checkpoint || exit 1 ;;
-                        "install_oh_my_zsh") $Checkpoint || exit 1 ;;
-                        "configure_zsh_theme") $Checkpoint || exit 1 ;;
-                        "install_zsh_plugins") $Checkpoint || exit 1 ;;
-                        "install_nerd_fonts") $Checkpoint || exit 1 ;;
-                        "configure_terminal") $Checkpoint || exit 1 ;;
+                        "install_gnome")         $Checkpoint || exit 1 ;;
+                        "install_vm_ext")        $Checkpoint || exit 1 ;;
+                        "install_aur")           $Checkpoint || exit 1 ;;
+                        "remove_bloatware")      $Checkpoint || exit 1 ;;
+                        "install_oh_my_zsh")     $Checkpoint || exit 1 ;;
+                        "configure_zsh_theme")   $Checkpoint || exit 1 ;;
+                        "install_zsh_plugins")   $Checkpoint || exit 1 ;;
+                        "install_nerd_fonts")    $Checkpoint || exit 1 ;;
+                        "configure_terminal")    $Checkpoint || exit 1 ;;
                         "prepare_gnome")
                                 $Checkpoint
                                 exit_code=$?
@@ -970,14 +1066,14 @@ main() {
                                 ;;
 
                         # Configure gnome after reboot
-                        "copy_config_files") $Checkpoint || exit 1 ;;
-                        "configure_gnome_keyboard") $Checkpoint || exit 1 ;;
-                        "configure_wallpaper") $Checkpoint || exit 1 ;;
-                        "qol_tweaks") $Checkpoint || exit 1 ;;
-                        "install_gnome_extensions") $Checkpoint || exit 1 ;;
-                        "configure_gnome_extensions") $Checkpoint || exit 1 ;;
-                        "install_gnome_icon_theme") $Checkpoint || exit 1 ;;
-                        "cleanup") $Checkpoint || exit 1 ;;
+                        "copy_config_files")           $Checkpoint || exit 1 ;;
+                        "configure_gnome_keyboard")    $Checkpoint || exit 1 ;;
+                        "configure_wallpaper")         $Checkpoint || exit 1 ;;
+                        "qol_tweaks")                  $Checkpoint || exit 1 ;;
+                        "install_gnome_extensions")    $Checkpoint || exit 1 ;;
+                        "configure_gnome_extensions")  $Checkpoint || exit 1 ;;
+                        "install_gnome_icon_theme")    $Checkpoint || exit 1 ;;
+                        "cleanup")                     $Checkpoint || exit 1 ;;
                 esac
         done
 }

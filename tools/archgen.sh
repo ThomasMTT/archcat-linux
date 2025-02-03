@@ -55,6 +55,16 @@ done
 selected_drive=$(whiptail --title "Select a Disk" --menu "WARNING: The selected disk will be formatted." 15 50 4 "${available_drives[@]}" 3>&1 1>&2 2>&3)
 if [[ $? -ne 0 ]]; then canceled; fi
 
+
+# Ask if the user wants to enable disk encryption and password if so
+enable_encryption=$(whiptail --title "Disk Encryption" --yesno "Do you want to enable disk encryption?" 8 45 3>&1 1>&2 2>&3)
+if [[ $? -eq 0 ]]; then
+        # Get encryption password
+        encryption_password=$(get_confirmed_password "full disk encryption")
+        if [[ $? -ne 0 ]]; then canceled; fi
+        encryption_enabled="true"
+fi
+
 # Get root password
 root_password=$(get_confirmed_password "root")
 if [[ $? -ne 0 ]]; then canceled; fi
@@ -96,9 +106,8 @@ config_file="archgen.cfg"
 clear
 echo """
 SELECTED_DRIVE: $selected_drive
-ROOT_PASSWORD: [HIDDEN]
+ENCRYPTION_ENABLED: $encryption_enabled
 USERNAME: $username
-USER_PASSWORD: [HIDDEN]
 HOSTNAME: $hostname
 VIRTUAL_MACHINE: $virtual_machine
 VIRTUAL_MACHINE_EXT: $virtual_machine_ext
@@ -123,6 +132,8 @@ EOL
 # Append configuration details to the file
 cat >>"$config_file" <<EOL
 SELECTED_DRIVE="$selected_drive"
+ENCRYPTION_ENABLED="$encryption_enabled"
+ENCRYPTION_PASSWORD="$encryption_password"
 ROOT_PASSWORD="$root_password"
 USERNAME="$username"
 USER_PASSWORD="$user_password"
