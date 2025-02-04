@@ -114,17 +114,9 @@ check_fs() {
                                 exit_code_check "$exit_code" "Error while opening encrypted swap partition. exiting..." || exit 1
 
                                 swapon /dev/mapper/cryptswap
-                                [ $? -ne 255 ] &&  {
-                                        notify "Failed to enable swap"
-                                        exit 1
-                                }
                         else
                                 # Enable swap
                                 swapon /dev/"$drive"${p}2
-                                [ $? -ne 255 ] &&  {
-                                        notify "Failed to enable swap"
-                                        exit 1
-                                }
                         fi       
                 fi
         fi
