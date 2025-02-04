@@ -207,7 +207,7 @@ setup_filesystem() {
         if lsblk "/dev/$SELECTED_DRIVE" | grep -q "/mnt/boot"; then
                 echolog "$GREEN" "Filesystem was already formatted and mounted. Skipping..."
 
-        elif [[ $part_count -gt 4 && $(get_last_checkpoint) != "Setup_filesystem" ]]; then
+        elif [[ $part_count -gt 4 && $(get_last_checkpoint) != "setup_filesystem" ]]; then
 
                 # Mount filesystem
                 check_fs || exit 1
@@ -248,6 +248,12 @@ setup_filesystem() {
                         exit_code_check "$?" "Error while marking the boot partition as bootable. exiting..." || exit 1
                 fi
 
+                parted /dev/"$SELECTED_DRIVE" --script mkpart primary linux-swap 513MB 5GB
+                exit_code_check "$?" "Error while setting up the swap partition. exiting..." || exit 1
+
+                parted /dev/"$SELECTED_DRIVE" --script mkpart primary ext4 5GB 100%
+                exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
+
                 if [[ $ENCRYPTION_ENABLED == "true" ]]; then
                         # Encrypt the swap partition
                         echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE"${p}2
@@ -273,15 +279,9 @@ setup_filesystem() {
                         mkfs.ext4 /dev/mapper/cryptroot
                         exit_code_check "$?" "Error while formatting encrypted root partition. exiting..." || exit 1
                 else
-                        # Normal setup
-                        parted /dev/"$SELECTED_DRIVE" --script mkpart primary linux-swap 513MB 5GB
-                        exit_code_check "$?" "Error while setting up the swap partition. exiting..." || exit 1
-
+                        
                         mkswap /dev/"$SELECTED_DRIVE"${p}2 
                         exit_code_check "$?" "Error while formatting swap partition. exiting..." || exit 1
-
-                        parted /dev/"$SELECTED_DRIVE" --script mkpart primary ext4 5GB 100%
-                        exit_code_check "$?" "Error while setting up the root partition. exiting..." || exit 1
 
                         mkfs.ext4 /dev/"$SELECTED_DRIVE"${p}3 
                         exit_code_check "$?" "Error while formatting root partition. exiting..." || exit 1
@@ -301,6 +301,8 @@ setup_filesystem() {
 install_root_packages() {
         update_checkpoint "${FUNCNAME[0]}"
         notify "Installing root packages..."
+
+        sed -i "s/#ParallelDownloads/ParallelDownloads/g" /etc/pacman.conf
 
         packages="linux linux-firmware networkmanager grub wpa_supplicant base base-devel"
 
@@ -472,7 +474,7 @@ configure_mkinitcpio() {
 
                 chmod 0400 /etc/cryptswap.key
                 exit_code_check $? "Error while configuring swap decryption key perms" || exit 1
-                
+
                 echo "$ENCRYPTION_PASSWORD" | cryptsetup luksAddKey "/dev/${drive}${p}2" /etc/cryptswap.key
 
                 cryptswap_uuid=$(blkid -o value -s UUID /dev/"$SELECTED_DRIVE""${p}"2)
@@ -526,6 +528,8 @@ install_grub() {
 install_base_packages() {
         update_checkpoint "${FUNCNAME[0]}"
         notify "Installing base packages"
+
+        sed -i "s/#ParallelDownloads/ParallelDownloads/g" /etc/pacman.conf
 
         # Installing base packages
         pacman --noconfirm --quiet -S git wget nano code kitty python-pip pacman-contrib zsh dconf-editor lsd bat mission-center
@@ -1017,7 +1021,7 @@ main() {
         last_checkpoint=$(get_last_checkpoint)
 
         # Check filesystem if interacting from iso, mount if necessary also check if at first phase
-        if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" && $last_checkpoint != "Setup_filesystem" ]]; then
+        if [[ $(cat /etc/hostname 2>/dev/null) == "archiso" && $last_checkpoint != "setup_filesystem" ]]; then
                 check_fs
         fi
 
