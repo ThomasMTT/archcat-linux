@@ -324,10 +324,8 @@ generate_fstab() {
         notify "Generating fstab..."
 
         # Generate fstab file
-        genfstab -U /mnt >/mnt/etc/fstab
+        genfstab /mnt >/mnt/etc/fstab
         exit_code_check "$?" "Error while Generating fstab. exiting..." || exit 1
-
-        [[ $ENCRYPTION_ENABLED == "true" ]] && sed -i '/^[^#]*swap/s/^[^ ]*/\/dev\/mapper\/cryptswap/\tnone/' /mnt/etc/fstab
 
         echolog "$GREEN" "Fstab generated successfully"
 }
