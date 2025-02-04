@@ -113,13 +113,13 @@ check_fs() {
                                 [[ $exit_code == 5 ]] && exit_code=0
                                 exit_code_check "$exit_code" "Error while opening encrypted swap partition. exiting..." || exit 1
 
-                                swapon /dev/mapper/cryptswap || {
+                                swapon /dev/mapper/cryptswap || [ $? -ne 255 ] &&  {
                                         notify "Failed to enable swap"
                                         exit 1
                                 }
                         else
                                 # Enable swap
-                                swapon /dev/"$drive"${p}2 || {
+                                swapon /dev/"$drive"${p}2 || [ $? -ne 255 ] &&  {
                                         notify "Failed to enable swap"
                                         exit 1
                                 }
@@ -303,6 +303,7 @@ install_root_packages() {
         notify "Installing root packages..."
 
         sed -i "s/#ParallelDownloads/ParallelDownloads/g" /etc/pacman.conf
+        pacman -Sy --noconfirm
 
         packages="linux linux-firmware networkmanager grub wpa_supplicant base base-devel"
 
@@ -331,6 +332,8 @@ generate_fstab() {
         # Generate fstab file
         genfstab -U /mnt >/mnt/etc/fstab
         exit_code_check "$?" "Error while Generating fstab. exiting..." || exit 1
+
+        [[ $ENCRYPTION_ENABLED == "true" ]] && sed -i '/^[^#]*swap/s/^[^ ]*/\/dev\/mapper\/cryptswap/' /mnt/etc/fstab
 
         echolog "$GREEN" "Fstab generated successfully"
 }
@@ -475,7 +478,7 @@ configure_mkinitcpio() {
                 chmod 0400 /etc/cryptswap.key
                 exit_code_check $? "Error while configuring swap decryption key perms" || exit 1
 
-                echo "$ENCRYPTION_PASSWORD" | cryptsetup luksAddKey "/dev/${drive}${p}2" /etc/cryptswap.key
+                echo "$ENCRYPTION_PASSWORD" | cryptsetup luksAddKey "/dev/${SELECTED_DRIVE}${p}2" /etc/cryptswap.key
 
                 cryptswap_uuid=$(blkid -o value -s UUID /dev/"$SELECTED_DRIVE""${p}"2)
                 echo "cryptswap UUID=$cryptswap_uuid /etc/cryptswap.key swap,cipher=aes-cbc-essiv:sha256" > /etc/crypttab
@@ -530,6 +533,8 @@ install_base_packages() {
         notify "Installing base packages"
 
         sed -i "s/#ParallelDownloads/ParallelDownloads/g" /etc/pacman.conf
+
+        pacman -Sy --noconfirm
 
         # Installing base packages
         pacman --noconfirm --quiet -S git wget nano code kitty python-pip pacman-contrib zsh dconf-editor lsd bat mission-center
