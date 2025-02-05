@@ -70,7 +70,7 @@ check_fs() {
                         if [[ $ENCRYPTION_ENABLED == "true" ]]; then
 
                                 # Open root
-                                echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}3 cryptroot
+                                echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE""${p}"3 cryptroot
                                 exit_code=$?
                                 [[ $exit_code == 5 ]] && exit_code=0
                                 exit_code_check "$exit_code" "Error while opening encrypted root partition. exiting..." || exit 1
@@ -83,7 +83,7 @@ check_fs() {
                         else
 
                                 # Mount root
-                                mount /dev/"$drive"${p}3 "$root_mount_point" || {
+                                mount /dev/"$drive""${p}"3 "$root_mount_point" || {
                                         notify "Failed to mount /dev/${drive}${p}3 on $root_mount_point."
                                         exit 1
                                 }
@@ -97,7 +97,7 @@ check_fs() {
                         mkdir -p "$boot_mount_point"
 
                         # Mount boot
-                        mount /dev/"$drive"${p}1 "$boot_mount_point" || {
+                        mount /dev/"$drive""${p}"1 "$boot_mount_point" || {
                                 notify "Failed to mount /dev/${drive}${p}1 on $boot_mount_point."
                                 exit 1
                         }
@@ -108,7 +108,7 @@ check_fs() {
 
                         if [[ $ENCRYPTION_ENABLED == "true" ]]; then
 
-                                echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}2 cryptswap
+                                echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE""${p}"2 cryptswap
                                 exit_code=$?
                                 [[ $exit_code == 5 ]] && exit_code=0
                                 exit_code_check "$exit_code" "Error while opening encrypted swap partition. exiting..." || exit 1
@@ -116,7 +116,7 @@ check_fs() {
                                 swapon /dev/mapper/cryptswap
                         else
                                 # Enable swap
-                                swapon /dev/"$drive"${p}2
+                                swapon /dev/"$drive""${p}"2
                         fi       
                 fi
         fi
@@ -209,9 +209,9 @@ setup_filesystem() {
         echolog "$GREEN" "Filesystem is already formatted. And has now been successfully mounted"
 
         else
-                for part in $(seq 1 $part_count); do
-                        wipefs -a /dev/${SELECTED_DRIVE}${p}${part} 2>/dev/null
-                        parted /dev/"$SELECTED_DRIVE" rm $part 2>/dev/null
+                for part in $(seq 1 "$part_count"); do
+                        wipefs -a /dev/"${SELECTED_DRIVE}""${p}""${part}" 2>/dev/null
+                        parted /dev/"$SELECTED_DRIVE" rm "$part" 2>/dev/null
                 done
 
                 # Check if the system is UEFI
@@ -250,10 +250,10 @@ setup_filesystem() {
 
                 if [[ $ENCRYPTION_ENABLED == "true" ]]; then
                         # Encrypt the swap partition
-                        echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE"${p}2
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE""${p}"2
                         exit_code_check "$?" "Error while setting up LUKS encryption on swap partition. exiting..." || exit 1
 
-                        echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}2 cryptswap
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE""${p}"2 cryptswap
                         exit_code=$?
                         [[ $exit_code == 5 ]] && exit_code=0
                         exit_code_check "$exit_code" "Error while opening encrypted swap partition. exiting..." || exit 1
@@ -262,10 +262,10 @@ setup_filesystem() {
                         exit_code_check "$?" "Error while formatting encrypted swap partition. exiting..." || exit 1
 
                         # Encrypt the root partition
-                        echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE"${p}3
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup luksFormat /dev/"$SELECTED_DRIVE""${p}"3
                         exit_code_check "$?" "Error while setting up LUKS encryption on root partition. exiting..." || exit 1
 
-                        echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE"${p}3 cryptroot
+                        echo "$ENCRYPTION_PASSWORD" | cryptsetup open /dev/"$SELECTED_DRIVE""${p}"3 cryptroot
                         exit_code=$?
                         [[ $exit_code == 5 ]] && exit_code=0
                         exit_code_check "$exit_code" "Error while opening encrypted root partition. exiting..." || exit 1
@@ -274,15 +274,15 @@ setup_filesystem() {
                         exit_code_check "$?" "Error while formatting encrypted root partition. exiting..." || exit 1
                 else
                         
-                        mkswap /dev/"$SELECTED_DRIVE"${p}2 
+                        mkswap /dev/"$SELECTED_DRIVE""${p}"2 
                         exit_code_check "$?" "Error while formatting swap partition. exiting..." || exit 1
 
-                        mkfs.ext4 /dev/"$SELECTED_DRIVE"${p}3 
+                        mkfs.ext4 /dev/"$SELECTED_DRIVE""${p}"3 
                         exit_code_check "$?" "Error while formatting root partition. exiting..." || exit 1
                 fi
 
                 
-                mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE"${p}1 
+                mkfs.vfat -F 32 /dev/"$SELECTED_DRIVE""${p}"1 
                 exit_code_check "$?" "Error while formatting boot/EFI partition. exiting..." || exit 1
 
                 # Mount filesystem
@@ -684,7 +684,7 @@ configure_zsh_theme() {
         exit_code_check $? "Error while cloning Powerlevel10k theme" || exit 1
 
         # Add theme to root
-        ln -s /home/$USERNAME/.p10k.zsh /root
+        ln -s /home/"$USERNAME"/.p10k.zsh /root
 
         # Add custom .zshrc config
         rm /home/"$USERNAME"/.zshrc
@@ -707,10 +707,10 @@ install_zsh_plugins() {
         exit_code_check $? "Error while cloning zsh-syntax-highlighting" || exit 1
         
         # Add .zshrc and .oh-my-zsh to root
-        ln -s /home/$USERNAME/.zshrc /root
+        ln -s /home/"$USERNAME"/.zshrc /root
         exit_code_check $? "Error while linking .zshrc config to /root" || exit 1
         
-        cp -r /home/$USERNAME/.oh-my-zsh /root/
+        cp -r /home/"$USERNAME"/.oh-my-zsh /root/
         exit_code_check $? "Error while copying .oh-my-zsh config to /root" || exit 1
         
         echolog "$GREEN" "Zsh plugins installed correctly"
@@ -1008,11 +1008,12 @@ main() {
         ls archgen.cfg &>/dev/null || ./tools/archgen.sh || exit 1
 
         # Import installation config
+        # shellcheck disable=SC1091
         source ./archgen.cfg
 
         # if the drive is nvme then it will use this format nvme0n(number)p(partition) 
         # so we add the p to the partitions where needed
-        [[ $(echo $SELECTED_DRIVE | cut -c 1-4) == "nvme" ]] && p=p 
+        [[ $(echo "$SELECTED_DRIVE" | cut -c 1-4) == "nvme" ]] && p=p 
 
         # Get last checkpoint to continue from (if any)
         last_checkpoint=$(get_last_checkpoint)
