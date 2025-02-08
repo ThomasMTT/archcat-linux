@@ -820,18 +820,25 @@ configure_wallpaper() {
         update_checkpoint "${FUNCNAME[0]}"
         notify "Configuring wallpaper..."
 
-        # Copy Wallpapers
-        cp /mnt/Archcat/images/wallpaper* /home/"$USERNAME"/Pictures/
-        exit_code_check $? "Error while copying pictures to /home/$USERNAME/Pictures/" || exit 1
+        # Make wallpaper dir
+        wallpaper_dir="/home/$USERNAME/.config/wallpaper"
+        mkdir -p "$wallpaper_dir"
 
-        # Set pictures dir variable in correct format
-        pictures_dir="'file:///home/$USERNAME/Pictures/"
+        # Copy Wallpapers
+        cp /mnt/Archcat/images/wallpaper* "$wallpaper_dir"
+        exit_code_check $? "Error while copying wallpapers to $wallpaper_dir" || exit 1
+
+        # Set wallpaper dir variable in correct format
+        wallpaper_dir_setting="'file://$wallpaper_dir"
 
         # Set light mode wallpaper
-        gsettings_set org.gnome.desktop.background picture-uri "$pictures_dir/wallpaper.jpg'" || exit 1
+        gsettings_set org.gnome.desktop.background picture-uri "$wallpaper_dir_setting/wallpaper.jpg'" || exit 1
 
         # Set dark mode wallpaper
-        gsettings_set org.gnome.desktop.background picture-uri-dark "$pictures_dir/wallpaper-dark.jpg'" || exit 1
+        gsettings_set org.gnome.desktop.background picture-uri-dark "$wallpaper_dir_setting/wallpaper-dark.jpg'" || exit 1
+
+        # Create soft link from wallpaper dir to Pictures (so that wallpapers still work if Pictures dir is deleted)
+        ln -s "$wallpaper_dir" "/home/$USERNAME/Pictures"
 
         echolog "$GREEN" "Wallpaper configured in gnome"
 }
