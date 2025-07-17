@@ -489,7 +489,10 @@ install_grub() {
         # Change the OS name from "Arch Linux" to "ArchCat"
         sed -i 's/GRUB_DISTRIBUTOR="Arch"/GRUB_DISTRIBUTOR="ArchCat"/' /etc/default/grub
 
-        
+        if [[ $ENCRYPTION_ENABLED == "true" ]]; then
+                sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/g" /etc/default/grub
+        fi
+
         if is_uefi; then
                 # For UEFI systems
                 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
