@@ -6,10 +6,19 @@
 #  _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 #  "`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
 
+loadkeys us
+
 # Helper function to handle script cancellation
 canceled() {
         echo "Canceled. Exiting..."
+        loadkeys es
         exit 1
+}
+
+trap ctrl_c INT
+
+ctrl_c() {
+        loadkeys es
 }
 
 # Function to get a confirmed password
