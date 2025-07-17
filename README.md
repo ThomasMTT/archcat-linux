@@ -8,6 +8,9 @@ Welcome to Archcat, a lightweight Arch Linux installer. Archcat is designed to p
 4. [Checkpoint System](#checkpoint-system)
 5. [Installation Instructions](#installation-instructions)
 6. [Additional Resources](#additional-resources)
+
+## KNOWN ISSUES
+UEFI system + Systemwide encryption doesnt work for now.
    
 ## Project Overview
 Archcat is designed to offer a quick and flexible installation process for users seeking a customized Arch Linux-based environment. It features a comprehensive installation script with checkpoints to ensure a smooth setup experience.
