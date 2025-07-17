@@ -6,19 +6,10 @@
 #  _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 #  "`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
 
-loadkeys us
-
 # Helper function to handle script cancellation
 canceled() {
         echo "Canceled. Exiting..."
-        loadkeys es
         exit 1
-}
-
-trap ctrl_c INT
-
-ctrl_c() {
-        loadkeys es
 }
 
 # Function to get a confirmed password
@@ -156,8 +147,6 @@ sed -i 's/[[:space:]]*$//' "$config_file"
 
 # Notify the user of successful completion
 whiptail --title "ArchGen" --msgbox "Configuration file '$config_file' created successfully." 8 40 3>&1 1>&2 2>&3
-
-loadkeys es
 
 # Clear the screen
 clear
